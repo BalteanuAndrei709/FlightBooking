@@ -1,32 +1,22 @@
-package com.adminservice.model;
+package com.adminservice.dto;
 
+import com.adminservice.model.Flight;
 import jakarta.persistence.*;
 
 import java.util.List;
 
-/**
- * Entity class for an operator.
- */
-@Entity
-@Table(name = "operator")
-public class Operator {
+public class OperatorDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "operator")
     List<Flight> allFlights;
-    @Column(unique = true, nullable = false)
     private String name;
-    @Column(unique = true, nullable = false)
     private String iban;
-    @Column(unique = true, nullable = false, name = "api_search")
     private String apiSearch;
 
-    public Operator() {
+    public OperatorDTO() {
     }
 
-    public Operator(Integer id, List<Flight> allFlights, String name, String iban, String apiSearch) {
+    public OperatorDTO(Integer id, List<Flight> allFlights, String name, String iban, String apiSearch) {
         this.id = id;
         this.allFlights = allFlights;
         this.name = name;
