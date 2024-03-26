@@ -1,26 +1,38 @@
 package com.searchflight.service;
 
+import com.searchflight.dto.AvailableFlightsDto;
 import com.searchflight.model.Flight;
 import com.searchflight.model.Operator;
 import com.searchflight.repository.FlightRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Service layer for the SearchFlight service.
+ */
 @Service
 public class SearchFlightService {
 
+    //The repository layer for the Flight entity.
     private final FlightRepository flightRepository;
+    private final RestTemplate restTemplate;
 
-    public SearchFlightService(FlightRepository flightRepository) {
+    public SearchFlightService(FlightRepository flightRepository, RestTemplate restTemplate) {
         this.flightRepository = flightRepository;
+        this.restTemplate = restTemplate;
     }
 
     /**
      * Method that contains the business logic for searching a flight
-     * @param from
+     * @param leaving
      * The city from which the user wants to travel.
-     * @param to
+     * @param arriving
      * The city to which the user wants to travel.
      * @param departureDate
      * Departure date of the flight.
@@ -29,15 +41,30 @@ public class SearchFlightService {
      * @return
      * List of available options that match the given criteria.
      */
-    public List<Object> findFlights(String from, String to, String departureDate, String returnDate) {
-        var operators = findOperators(from,to);
-
-        //check daca mai sunt bilete disponibile
+    public List<Object> findFlights(String leaving, String arriving, String departureDate, String returnDate) {
+        // extract all operators which do the flight
+        var operators = findOperators(leaving,arriving);
+         /*
+          * For every operator that registered the flight that the user wants to take, we call the external
+          * API in order to check if there are any flights that match the range date added by the user.
+          */
+        var matchingFlightsFromAllOperators = new ArrayList<>();
         operators.forEach(operator -> {
-            // operator.searchApi()...
+            Map<String, String> params = new HashMap<>();
+            params.put("leaving", leaving);
+            params.put("arriving", arriving);
+            params.put("departure-date", departureDate);
+            params.put("return-date", returnDate);
+
+            ResponseEntity<AvailableFlightsDto> response = restTemplate.getForEntity(
+                    operator.getApiSearch(),
+                    AvailableFlightsDto.class,
+                    params
+            );
+            matchingFlightsFromAllOperators.add(response.getBody());
         });
 
-        return null;
+        return matchingFlightsFromAllOperators;
     }
 
     /**

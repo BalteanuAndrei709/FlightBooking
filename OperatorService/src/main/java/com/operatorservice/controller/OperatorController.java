@@ -1,6 +1,6 @@
 package com.operatorservice.controller;
 
-import com.operatorservice.service.FlightService;
+import com.operatorservice.service.OperatorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,23 +9,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
-import java.util.Date;
 
+/**
+ * Controller class responsible for handling all HTTP request related to an operator.
+ */
 @RestController
 @RequestMapping("/api/flight")
-public class FlightController {
+public class OperatorController {
 
-    private final FlightService flightService;
+    // Service layer for the operator.
+    private final OperatorService operatorService;
 
-    public FlightController(FlightService flightService) {
-        this.flightService = flightService;
+    public OperatorController(OperatorService operatorService) {
+        this.operatorService = operatorService;
     }
 
     /**
      * Method that will search for flights with the given criteria.
-     * @param from
+     * @param leaving
      * The city from which the user wants to travel.
-     * @param to
+     * @param arriving
      * The city to which the user wants to travel.
      * @param departureDate
      * Departure date of the flight.
@@ -34,12 +37,12 @@ public class FlightController {
      * @return
      * List of available options that match the given criteria.
      */
-    @GetMapping("/{leaving}/{destination}/{departure}/{return}")
+    @GetMapping("/{leaving}/{arriving}/{departure-date}/{return-date}")
     public ResponseEntity<?> searchFlight(@PathVariable(name = "leaving") String leaving,
-                                          @PathVariable(name = "destination") String destination,
-                                          @PathVariable(name = "departure") String departureDate,
-                                          @PathVariable(name = "return") String returnDate) throws ParseException {
-        var availableFlights = flightService.findFlights(leaving, destination, departureDate, returnDate);
+                                          @PathVariable(name = "arriving") String arriving,
+                                          @PathVariable(name = "departure-date") String departureDate,
+                                          @PathVariable(name = "return-date") String returnDate) throws ParseException {
+        var availableFlights = operatorService.findFlights(leaving, arriving, departureDate, returnDate);
         return ResponseEntity.status(HttpStatus.OK).body(availableFlights);
     }
 }

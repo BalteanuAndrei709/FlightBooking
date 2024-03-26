@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/search-flight")
 public class SearchFlightController {
+
     // layer that contains the business logic for the SearchFlight service
     private final SearchFlightService searchFlightService;
 
@@ -22,7 +23,7 @@ public class SearchFlightController {
      * Method that will handle the initial request regarding the search of flights.
      * @param leaving
      * The city from which the user wants to travel.
-     * @param destination
+     * @param arriving
      * The city to which the user wants to travel.
      * @param departureDate
      * Departure date of the flight.
@@ -31,12 +32,12 @@ public class SearchFlightController {
      * @return
      * List of available options that match the given criteria.
      */
-    @GetMapping("/{leaving}/{destination}/{departure}/{return}")
+    @GetMapping("/{leaving}/{arriving}/{departure}/{return}")
     public ResponseEntity<?> searchFlight(@PathVariable(name = "leaving") String leaving,
-                                          @PathVariable(name = "destination") String destination,
+                                          @PathVariable(name = "arriving") String arriving,
                                           @PathVariable(name = "departure") String departureDate,
                                           @PathVariable(name = "return") String returnDate){
-        var availableOptions = searchFlightService.findFlights(leaving, destination, departureDate, returnDate);
+        var availableOptions = searchFlightService.findFlights(leaving, arriving, departureDate, returnDate);
         return ResponseEntity.status(HttpStatus.OK).body(availableOptions);
     }
 }

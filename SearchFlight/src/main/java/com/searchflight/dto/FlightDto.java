@@ -1,15 +1,10 @@
-package com.operatorservice.model;
+package com.searchflight.dto;
 
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-@Document(collection = "flight")
-public class Flight {
-
-    @Id
+public class FlightDto {
     private ObjectId id;
     private String operator;
     private String leaving;
@@ -74,5 +69,3 @@ public class Flight {
         this.departureDate = departureDate;
     }
 }
-
-
