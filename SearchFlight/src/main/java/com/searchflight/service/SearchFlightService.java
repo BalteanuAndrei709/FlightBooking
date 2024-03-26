@@ -32,7 +32,7 @@ public class SearchFlightService {
      * Method that contains the business logic for searching a flight
      * @param leaving
      * The city from which the user wants to travel.
-     * @param arriving
+     * @param destination
      * The city to which the user wants to travel.
      * @param departureDate
      * Departure date of the flight.
@@ -41,9 +41,9 @@ public class SearchFlightService {
      * @return
      * List of available options that match the given criteria.
      */
-    public List<Object> findFlights(String leaving, String arriving, String departureDate, String returnDate) {
+    public List<Object> findFlights(String leaving, String destination, String departureDate, String returnDate) {
         // extract all operators which do the flight
-        var operators = findOperators(leaving,arriving);
+        var operators = findOperators(leaving,destination);
          /*
           * For every operator that registered the flight that the user wants to take, we call the external
           * API in order to check if there are any flights that match the range date added by the user.
@@ -52,7 +52,7 @@ public class SearchFlightService {
         operators.forEach(operator -> {
             Map<String, String> params = new HashMap<>();
             params.put("leaving", leaving);
-            params.put("arriving", arriving);
+            params.put("destination", destination);
             params.put("departure-date", departureDate);
             params.put("return-date", returnDate);
 
@@ -69,15 +69,15 @@ public class SearchFlightService {
 
     /**
      * Extract the operators which have the flight that match the details.
-     * @param from
+     * @param leaving
      * The city from which the user wants to travel.
-     * @param to
+     * @param destination
      * The city to which the user wants to travel.
      * @return
      * The list of operators who have the flights with given details.
      */
-    private List<Operator> findOperators(String from, String to){
-        var matchingFlights = flightRepository.findAllByLeavingAndArriving(from,to);
+    private List<Operator> findOperators(String leaving, String destination){
+        var matchingFlights = flightRepository.findAllByLeavingAndDestination(leaving,destination);
         return matchingFlights.stream()
                 .map(Flight::getOperator)
                 .toList();

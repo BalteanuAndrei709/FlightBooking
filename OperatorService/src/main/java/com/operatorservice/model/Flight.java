@@ -1,9 +1,11 @@
 package com.operatorservice.model;
 
 import org.bson.types.ObjectId;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Document(collection = "flight")
@@ -13,10 +15,10 @@ public class Flight {
     private ObjectId id;
     private String operator;
     private String leaving;
-    private String arriving;
+    private String destination;
     private Date departureTime;
     private Date arrivalTime;
-    private Date departureDate;
+    private LocalDate departureDate;
 
     public ObjectId getId() {
         return id;
@@ -42,14 +44,6 @@ public class Flight {
         this.leaving = leaving;
     }
 
-    public String getArriving() {
-        return arriving;
-    }
-
-    public void setArriving(String arriving) {
-        this.arriving = arriving;
-    }
-
     public Date getDepartureTime() {
         return departureTime;
     }
@@ -66,12 +60,20 @@ public class Flight {
         this.arrivalTime = arrivalTime;
     }
 
-    public Date getDepartureDate() {
+    public LocalDate getDepartureDate() {
         return departureDate;
     }
 
-    public void setDepartureDate(Date departureDate) {
+    public void setDepartureDate(LocalDate departureDate) {
         this.departureDate = departureDate;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
     }
 }
 

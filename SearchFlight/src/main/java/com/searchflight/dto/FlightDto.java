@@ -8,7 +8,7 @@ public class FlightDto {
     private ObjectId id;
     private String operator;
     private String leaving;
-    private String arriving;
+    private String destination;
     private Date departureTime;
     private Date arrivalTime;
     private Date departureDate;
@@ -37,14 +37,12 @@ public class FlightDto {
         this.leaving = leaving;
     }
 
-    public String getArriving() {
-        return arriving;
+    public String getDestination() {
+        return destination;
     }
-
-    public void setArriving(String arriving) {
-        this.arriving = arriving;
+    public void setDestination(String arriving) {
+        this.destination = arriving;
     }
-
     public Date getDepartureTime() {
         return departureTime;
     }

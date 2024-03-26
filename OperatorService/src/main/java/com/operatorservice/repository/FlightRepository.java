@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface FlightRepository extends MongoRepository<Flight, ObjectId> {
 
-    List<Flight> findAllByLeavingAndArrivingAndDepartureDateAfter(String leaving, String arriving, Date departureDate);
+    List<Flight> findAllByLeavingAndDestinationAndDepartureDateAfter(String leaving, String destination, Date departureDate);
 
-    List<Flight> findAllByLeavingAndArrivingAndDepartureDateBefore(String arriving, String leaving, Date returnDate);
+    List<Flight> findAllByLeavingAndDestinationAndDepartureDateBefore(String destination, String leaving, Date returnDate);
 }

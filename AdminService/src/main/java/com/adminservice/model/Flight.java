@@ -22,6 +22,7 @@ public class Flight {
     private String destination;
     @Column(nullable = false)
     private Integer numberSeatsTotal;
+    // to be removed
     @Column(nullable = false)
     private Integer numberSeatsAvailable;
 

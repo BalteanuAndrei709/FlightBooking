@@ -28,7 +28,7 @@ public class OperatorController {
      * Method that will search for flights with the given criteria.
      * @param leaving
      * The city from which the user wants to travel.
-     * @param arriving
+     * @param destination
      * The city to which the user wants to travel.
      * @param departureDate
      * Departure date of the flight.
@@ -37,12 +37,12 @@ public class OperatorController {
      * @return
      * List of available options that match the given criteria.
      */
-    @GetMapping("/{leaving}/{arriving}/{departure-date}/{return-date}")
+    @GetMapping("/{leaving}/{destination}/{departure-date}/{return-date}")
     public ResponseEntity<?> searchFlight(@PathVariable(name = "leaving") String leaving,
-                                          @PathVariable(name = "arriving") String arriving,
+                                          @PathVariable(name = "destination") String destination,
                                           @PathVariable(name = "departure-date") String departureDate,
                                           @PathVariable(name = "return-date") String returnDate) throws ParseException {
-        var availableFlights = operatorService.findFlights(leaving, arriving, departureDate, returnDate);
+        var availableFlights = operatorService.findFlights(leaving, destination, departureDate, returnDate);
         return ResponseEntity.status(HttpStatus.OK).body(availableFlights);
     }
 }

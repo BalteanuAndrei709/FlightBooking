@@ -26,7 +26,7 @@ public class OperatorService {
      * Method that contains the business logic for flights.
      * @param leaving
      * The city from which the user wants to travel.
-     * @param arriving
+     * @param destination
      * The city to which the user wants to travel.
      * @param departureDate
      * Departure date of the flight.
@@ -35,13 +35,13 @@ public class OperatorService {
      * @return
      * List of available options that match the given criteria.
      */
-    public AvailableFlightsDto findFlights(String leaving, String arriving, String departureDate, String returnDate) throws ParseException {
+    public AvailableFlightsDto findFlights(String leaving, String destination, String departureDate, String returnDate) throws ParseException {
 
-        List<Flight> flightsLeavingAfterDepartureDate = flightRepository.findAllByLeavingAndArrivingAndDepartureDateAfter(
-                leaving, arriving, formatter.parse(departureDate));
+        List<Flight> flightsLeavingAfterDepartureDate = flightRepository.findAllByLeavingAndDestinationAndDepartureDateAfter(
+                leaving, destination, formatter.parse(departureDate));
 
-        List<Flight> returnFlightsLeavingBeforeReturnDate = flightRepository.findAllByLeavingAndArrivingAndDepartureDateBefore(
-                arriving, leaving, formatter.parse(returnDate));
+        List<Flight> returnFlightsLeavingBeforeReturnDate = flightRepository.findAllByLeavingAndDestinationAndDepartureDateBefore(
+                destination, leaving, formatter.parse(returnDate));
 
         return new AvailableFlightsDto(flightsLeavingAfterDepartureDate, returnFlightsLeavingBeforeReturnDate);
     }

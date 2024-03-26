@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface FlightRepository extends CrudRepository<Flight, Integer> {
 
-    List<Flight> findAllByLeavingAndArriving(String leaving, String arriving);
+    List<Flight> findAllByLeavingAndDestination(String leaving, String arriving);
 }

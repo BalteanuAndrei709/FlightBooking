@@ -23,7 +23,7 @@ public class SearchFlightController {
      * Method that will handle the initial request regarding the search of flights.
      * @param leaving
      * The city from which the user wants to travel.
-     * @param arriving
+     * @param destination
      * The city to which the user wants to travel.
      * @param departureDate
      * Departure date of the flight.
@@ -32,12 +32,12 @@ public class SearchFlightController {
      * @return
      * List of available options that match the given criteria.
      */
-    @GetMapping("/{leaving}/{arriving}/{departure}/{return}")
+    @GetMapping("/{leaving}/{destination}/{departure}/{return}")
     public ResponseEntity<?> searchFlight(@PathVariable(name = "leaving") String leaving,
-                                          @PathVariable(name = "arriving") String arriving,
+                                          @PathVariable(name = "destination") String destination,
                                           @PathVariable(name = "departure") String departureDate,
                                           @PathVariable(name = "return") String returnDate){
-        var availableOptions = searchFlightService.findFlights(leaving, arriving, departureDate, returnDate);
+        var availableOptions = searchFlightService.findFlights(leaving, destination, departureDate, returnDate);
         return ResponseEntity.status(HttpStatus.OK).body(availableOptions);
     }
 }
