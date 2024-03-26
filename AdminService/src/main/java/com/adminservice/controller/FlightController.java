@@ -45,18 +45,14 @@ public class FlightController {
     public ResponseEntity<String> addFlight(@RequestBody FlightDTO flightDTO,
                                             @PathVariable(name = "operatorName") String operatorName) {
 
-        Optional<OperatorDTO> operatorDTO = operatorService.findByName(operatorName);
-        if (operatorDTO.isPresent()) {
-            flightDTO.setOperator(operatorMapper.toEntity(operatorDTO.get()));
-            flightService.createFlight(flightDTO);
-        }
-
+        flightService.createFlight(flightDTO, operatorName);
         return new ResponseEntity<>("Flight was added succesfully", HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Boolean> updateFlight(@RequestBody FlightDTO flightDTO,
                                                 @PathVariable(name = "id") Integer id) {
+
         return new ResponseEntity<>(flightService.updateFlight(flightDTO, id), HttpStatus.CREATED);
     }
 
