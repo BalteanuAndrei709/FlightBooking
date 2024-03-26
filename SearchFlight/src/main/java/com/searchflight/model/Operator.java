@@ -1,5 +1,6 @@
 package com.searchflight.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -14,7 +15,8 @@ public class Operator {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "operator")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "operator", cascade = CascadeType.REMOVE)
+    @JsonManagedReference
     List<Flight> allFlights;
     @Column(unique = true, nullable = false)
     private String name;
@@ -22,6 +24,17 @@ public class Operator {
     private String iban;
     @Column(unique = true, nullable = false, name = "api_search")
     private String apiSearch;
+
+    public Operator() {
+    }
+
+    public Operator(Integer id, List<Flight> allFlights, String name, String iban, String apiSearch) {
+        this.id = id;
+        this.allFlights = allFlights;
+        this.name = name;
+        this.iban = iban;
+        this.apiSearch = apiSearch;
+    }
 
     public Integer getId() {
         return id;
