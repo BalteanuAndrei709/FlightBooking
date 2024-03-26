@@ -23,20 +23,20 @@ public class OperatorService {
     @Autowired
     OperatorMapper operatorMapper;
 
-    public Optional<OperatorDTO> findById(Integer id){
+    public Optional<OperatorDTO> findById(Integer id) {
         Optional<Operator> operator = operatorRepository.findById(id);
-        if(operator.isPresent())
-        return operator.map(operatorMapper::toDto);
+        if (operator.isPresent())
+            return operator.map(operatorMapper::toDto);
         else
             throw new OperatorException("Operator id does not exist.");
     }
 
 
     //schimbare cu FlightDTO
-    public Optional<List<Flight>> findFlightsByOperatorName(String name){
+    public Optional<List<Flight>> findFlightsByOperatorName(String name) {
         boolean isPresent;
         isPresent = operatorRepository.findByName(name).isPresent();
-        if(isPresent){
+        if (isPresent) {
             return operatorRepository.findByName(name)
                     .map(Operator::getAllFlights);
         } else
@@ -45,17 +45,26 @@ public class OperatorService {
 
     }
 
-    public void createOperator(OperatorDTO operatorDTO){
+    public Optional<OperatorDTO> findByName(String name) {
+        Optional<Operator> optionalOperator = operatorRepository.findByName(name);
+        if (optionalOperator.isPresent()) {
+            return Optional.ofNullable(operatorMapper.toDto(optionalOperator.get()));
+        }
+        else
+            throw new OperatorException("Operator with name " + name + " was not found");
+    }
+
+    public void createOperator(OperatorDTO operatorDTO) {
         Operator operator = operatorMapper.toEntity(operatorDTO);
         operatorRepository.save(operator);
 
     }
 
-    public boolean updateOperator(OperatorDTO operatorDTO, Integer id){
+    public boolean updateOperator(OperatorDTO operatorDTO, Integer id) {
         boolean isOperatorPresent;
         Optional<Operator> optionalOperator = operatorRepository.findById(id);
         isOperatorPresent = optionalOperator.isPresent();
-        if(isOperatorPresent){
+        if (isOperatorPresent) {
 
             OperatorDTO existingOperatorDto = operatorMapper.toDto(optionalOperator.get());
             existingOperatorDto.setName(operatorDTO.getName());
@@ -70,12 +79,11 @@ public class OperatorService {
             throw new OperatorException("Operator id does not exist.");
 
 
-
     }
 
-    public boolean deleteOperator(Integer id){
+    public boolean deleteOperator(Integer id) {
         Optional<Operator> operator = operatorRepository.findById(id);
-        if(operator.isPresent()){
+        if (operator.isPresent()) {
             operatorRepository.deleteById(id);
             return true;
         } else

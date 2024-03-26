@@ -1,5 +1,6 @@
 package com.adminservice.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public class Operator {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "operator")
+    @JsonManagedReference
     List<Flight> allFlights;
     @Column(unique = true, nullable = false)
     private String name;

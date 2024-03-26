@@ -1,27 +1,25 @@
-package com.adminservice.model;
+package com.adminservice.dto;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "flight")
-public class Flight {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+import com.adminservice.model.Operator;
+public class FlightDTO {
     private Integer id;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinColumn(referencedColumnName = "id", name = "operator_id")
-    @JsonBackReference
     private Operator operator;
-    @Column(nullable = false)
     private String leaving;
-    @Column(nullable = false)
     private String destination;
-    @Column(nullable = false)
     private Integer numberSeatsTotal;
-    @Column(nullable = false)
     private Integer numberSeatsAvailable;
+
+    public FlightDTO(){}
+
+    public FlightDTO(Integer id, Operator operator, String leaving, String destination,
+                     Integer numberSeatsTotal, Integer numberSeatsAvailable) {
+        this.id = id;
+        this.operator = operator;
+        this.leaving = leaving;
+        this.destination = destination;
+        this.numberSeatsTotal = numberSeatsTotal;
+        this.numberSeatsAvailable = numberSeatsAvailable;
+    }
 
     public Integer getId() {
         return id;
