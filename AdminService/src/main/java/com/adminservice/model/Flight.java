@@ -2,7 +2,9 @@ package com.adminservice.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-
+/**
+ * Entity class for a flight.
+ */
 @Entity
 @Table(name = "flight")
 public class Flight {

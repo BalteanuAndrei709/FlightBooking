@@ -15,7 +15,7 @@ public class Operator {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "operator")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "operator", cascade = CascadeType.REMOVE)
     @JsonManagedReference
     List<Flight> allFlights;
     @Column(unique = true, nullable = false)
