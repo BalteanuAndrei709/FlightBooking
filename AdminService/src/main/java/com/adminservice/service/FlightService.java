@@ -63,6 +63,9 @@ public class FlightService {
             existingFlight.setLeaving(updatedFlightDto.getLeaving());
             existingFlight.setNumberSeatsTotal(updatedFlightDto.getNumberSeatsTotal());
             existingFlight.setNumberSeatsAvailable(updatedFlightDto.getNumberSeatsAvailable());
+            existingFlight.setDateOfDeparture(updatedFlightDto.getDateOfDeparture());
+            existingFlight.setTimeOfDeparture(updatedFlightDto.getTimeOfDeparture());
+
             Flight flight = flightMapper.toEntity(existingFlight);
             flight.setOperator(currentOperator);
             flightRepository.save(flight);

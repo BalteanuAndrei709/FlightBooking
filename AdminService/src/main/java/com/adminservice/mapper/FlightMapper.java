@@ -22,6 +22,8 @@ public class FlightMapper {
             flightDTO.setDestination(flight.getDestination());
             flightDTO.setNumberSeatsTotal(flight.getNumberSeatsTotal());
             flightDTO.setNumberSeatsAvailable(flight.getNumberSeatsAvailable());
+            flightDTO.setDateOfDeparture(flight.getDateOfDeparture());
+            flightDTO.setTimeOfDeparture(flight.getTimeOfDeparture());
             return flightDTO;
         }
     }
@@ -37,6 +39,8 @@ public class FlightMapper {
             flight.setDestination(flightDTO.getDestination());
             flight.setNumberSeatsTotal(flightDTO.getNumberSeatsTotal());
             flight.setNumberSeatsAvailable(flightDTO.getNumberSeatsAvailable());
+            flight.setDateOfDeparture(flightDTO.getDateOfDeparture());
+            flight.setTimeOfDeparture(flightDTO.getTimeOfDeparture());
             return flight;
         }
     }

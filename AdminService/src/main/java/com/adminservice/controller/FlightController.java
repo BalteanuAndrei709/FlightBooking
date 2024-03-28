@@ -20,10 +20,8 @@ import java.util.Optional;
 public class FlightController {
 
     private final FlightService flightService;
-    @Autowired
-    private OperatorService operatorService;
-    @Autowired
-    private OperatorMapper operatorMapper;
+  /*  private final OperatorService operatorService;
+    private final OperatorMapper operatorMapper;*/
 
     @Autowired
     public FlightController(FlightService flightService) {

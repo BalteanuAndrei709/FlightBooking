@@ -1,6 +1,10 @@
 package com.adminservice.dto;
 
 import com.adminservice.model.Operator;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 public class FlightDTO {
     private Integer id;
     //private Operator operator;
@@ -8,13 +12,16 @@ public class FlightDTO {
     private String destination;
     private Integer numberSeatsTotal;
     private Integer numberSeatsAvailable;
+    private LocalDate dateOfDeparture;
+    private LocalTime timeOfDeparture;
 
-    public FlightDTO(){}
+    public FlightDTO() {
+    }
 
     public FlightDTO(Integer id, Operator operator, String leaving, String destination,
                      Integer numberSeatsTotal, Integer numberSeatsAvailable) {
         this.id = id;
-       // this.operator = operator;
+        // this.operator = operator;
         this.leaving = leaving;
         this.destination = destination;
         this.numberSeatsTotal = numberSeatsTotal;
@@ -67,5 +74,21 @@ public class FlightDTO {
 
     public void setNumberSeatsAvailable(Integer numberSeatsAvailable) {
         this.numberSeatsAvailable = numberSeatsAvailable;
+    }
+
+    public LocalDate getDateOfDeparture() {
+        return dateOfDeparture;
+    }
+
+    public void setDateOfDeparture(LocalDate dateOfDeparture) {
+        this.dateOfDeparture = dateOfDeparture;
+    }
+
+    public LocalTime getTimeOfDeparture() {
+        return timeOfDeparture;
+    }
+
+    public void setTimeOfDeparture(LocalTime timeOfDeparture) {
+        this.timeOfDeparture = timeOfDeparture;
     }
 }
