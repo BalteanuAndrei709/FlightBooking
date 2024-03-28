@@ -1,7 +1,9 @@
 package com.adminservice.service;
 
+import com.adminservice.dto.FlightDTO;
 import com.adminservice.dto.OperatorDTO;
 import com.adminservice.exception.OperatorException;
+import com.adminservice.mapper.FlightMapper;
 import com.adminservice.mapper.OperatorMapper;
 import com.adminservice.model.Flight;
 import com.adminservice.model.Operator;
@@ -18,10 +20,17 @@ import java.util.Optional;
 @Transactional
 public class OperatorService {
 
-    @Autowired
-    OperatorRepository operatorRepository;
-    @Autowired
-    OperatorMapper operatorMapper;
+    private final OperatorRepository operatorRepository;
+
+    private final OperatorMapper operatorMapper;
+
+    private final FlightMapper flightMapper;
+
+    public OperatorService(OperatorRepository operatorRepository, OperatorMapper operatorMapper, FlightMapper flightMapper) {
+        this.operatorRepository = operatorRepository;
+        this.operatorMapper = operatorMapper;
+        this.flightMapper = flightMapper;
+    }
 
     public Optional<OperatorDTO> findById(Integer id) {
         Optional<Operator> operator = operatorRepository.findById(id);
@@ -33,12 +42,14 @@ public class OperatorService {
 
 
     //schimbare cu FlightDTO
-    public Optional<List<Flight>> findFlightsByOperatorName(String name) {
+    public Optional<List<FlightDTO>> findFlightsByOperatorName(String name) {
         boolean isPresent;
         isPresent = operatorRepository.findByName(name).isPresent();
         if (isPresent) {
-            return operatorRepository.findByName(name)
-                    .map(Operator::getAllFlights);
+            return Optional.of(operatorRepository.findByName(name).get().getAllFlights().stream()
+                    .map(flightMapper::toDTO)
+                    .toList());
+
         } else
             throw new OperatorException("This operator has no flights available.");
 
