@@ -17,7 +17,7 @@ public class OperatorMapper {
             operatorDTO.setIban(operator.getIban());
             operatorDTO.setName(operator.getName());
             operatorDTO.setApiSearch(operator.getApiSearch());
-            operatorDTO.setAllFlights(operator.getAllFlights());
+            //operatorDTO.setAllFlights(operator.getAllFlights());
             return operatorDTO;
         }
     }
@@ -31,7 +31,7 @@ public class OperatorMapper {
             operator.setIban(operatorDTO.getIban());
             operator.setName(operatorDTO.getName());
             operator.setApiSearch(operatorDTO.getApiSearch());
-            operator.setAllFlights(operatorDTO.getAllFlights());
+            //operator.setAllFlights(operatorDTO.getAllFlights());
             return operator;
         }
     }

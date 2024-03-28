@@ -3,7 +3,7 @@ package com.adminservice.dto;
 import com.adminservice.model.Operator;
 public class FlightDTO {
     private Integer id;
-    private Operator operator;
+    //private Operator operator;
     private String leaving;
     private String destination;
     private Integer numberSeatsTotal;
@@ -14,7 +14,7 @@ public class FlightDTO {
     public FlightDTO(Integer id, Operator operator, String leaving, String destination,
                      Integer numberSeatsTotal, Integer numberSeatsAvailable) {
         this.id = id;
-        this.operator = operator;
+       // this.operator = operator;
         this.leaving = leaving;
         this.destination = destination;
         this.numberSeatsTotal = numberSeatsTotal;
@@ -29,13 +29,13 @@ public class FlightDTO {
         this.id = id;
     }
 
-    public Operator getOperator() {
+   /* public Operator getOperator() {
         return operator;
     }
 
     public void setOperator(Operator operator) {
         this.operator = operator;
-    }
+    }*/
 
     public String getLeaving() {
         return leaving;

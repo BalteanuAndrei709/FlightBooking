@@ -47,8 +47,9 @@ public class FlightService {
     public void createFlight(FlightDTO dto, String operatorName) {
         Optional<OperatorDTO> operatorDTO = operatorService.findByName(operatorName);
         if (operatorDTO.isPresent()) {
-            dto.setOperator(operatorMapper.toEntity(operatorDTO.get()));
-            flightRepository.save(flightMapper.toEntity(dto));
+            Flight flight = flightMapper.toEntity(dto);
+            flight.setOperator(operatorMapper.toEntity(operatorDTO.get()));
+            flightRepository.save(flight);
         }
     }
 
@@ -56,12 +57,15 @@ public class FlightService {
         Optional<Flight> flightOptional = flightRepository.findById(id);
         boolean result = flightOptional.isPresent();
         if (result) {
+            Operator currentOperator = flightOptional.get().getOperator();   // save operator to be set again after the update takes place
             FlightDTO existingFlight = flightMapper.toDTO(flightOptional.get());
             existingFlight.setDestination(updatedFlightDto.getDestination());
             existingFlight.setLeaving(updatedFlightDto.getLeaving());
             existingFlight.setNumberSeatsTotal(updatedFlightDto.getNumberSeatsTotal());
             existingFlight.setNumberSeatsAvailable(updatedFlightDto.getNumberSeatsAvailable());
-            flightRepository.save(flightMapper.toEntity(existingFlight));
+            Flight flight = flightMapper.toEntity(existingFlight);
+            flight.setOperator(currentOperator);
+            flightRepository.save(flight);
             return true;
         } else
             throw new FlightException("The flight with id " + id + " doesn't exist");
