@@ -1,13 +1,13 @@
-package com.taromservice;
+package com.operatorservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TaromServiceApplication {
+public class OperatorServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(TaromServiceApplication.class, args);
+        SpringApplication.run(OperatorServiceApplication.class, args);
     }
 
 }
