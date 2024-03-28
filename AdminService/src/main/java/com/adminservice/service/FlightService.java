@@ -8,6 +8,7 @@ import com.adminservice.mapper.OperatorMapper;
 import com.adminservice.model.Flight;
 import com.adminservice.model.Operator;
 import com.adminservice.repository.FlightRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class FlightService {
 
     private final FlightMapper flightMapper;
@@ -47,7 +49,7 @@ public class FlightService {
     public void createFlight(FlightDTO dto, String operatorName) {
         Optional<OperatorDTO> operatorDTO = operatorService.findByName(operatorName);
         if (operatorDTO.isPresent()) {
-            dto.setOperator(operatorMapper.toEntity(operatorDTO.get()));
+            dto.setOperator(operatorDTO.get());
             flightRepository.save(flightMapper.toEntity(dto));
         }
     }

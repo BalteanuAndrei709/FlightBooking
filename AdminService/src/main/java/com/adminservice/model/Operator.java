@@ -9,20 +9,24 @@ import java.util.List;
  * Entity class for an operator.
  */
 @Entity
-@Table(name = "operator")
+@Table(name = "operator", uniqueConstraints = {
+        @UniqueConstraint(name = "unique_name", columnNames = "name"),
+        @UniqueConstraint(name = "unique_iban", columnNames = "iban"),
+        @UniqueConstraint(name = "unique_api_search", columnNames = "api_search")
+})
 public class Operator {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "operator")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "operator", cascade = CascadeType.REMOVE)
     @JsonManagedReference
     List<Flight> allFlights;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String name;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String iban;
-    @Column(unique = true, nullable = false, name = "api_search")
+    @Column(nullable = false, name = "api_search")
     private String apiSearch;
 
     public Operator() {

@@ -1,12 +1,24 @@
 package com.adminservice.mapper;
 
 
+import com.adminservice.dto.FlightDTO;
+import com.adminservice.dto.FlightDTONoOperator;
 import com.adminservice.dto.OperatorDTO;
+import com.adminservice.model.Flight;
 import com.adminservice.model.Operator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class OperatorMapper {
+
+    @Autowired
+    FlightDTONoOperatorMapper flightMapper;
+
 
     public OperatorDTO toDto(Operator operator) {
         if (operator == null)
@@ -17,7 +29,7 @@ public class OperatorMapper {
             operatorDTO.setIban(operator.getIban());
             operatorDTO.setName(operator.getName());
             operatorDTO.setApiSearch(operator.getApiSearch());
-            operatorDTO.setAllFlights(operator.getAllFlights());
+            //operatorDTO.setAllFlights(flightMapper.entitiesToDTOs(operator.getAllFlights()));
             return operatorDTO;
         }
     }
@@ -31,8 +43,10 @@ public class OperatorMapper {
             operator.setIban(operatorDTO.getIban());
             operator.setName(operatorDTO.getName());
             operator.setApiSearch(operatorDTO.getApiSearch());
-            operator.setAllFlights(operatorDTO.getAllFlights());
+            //operator.setAllFlights(flightMapper.dtosToEntities(operatorDTO.getAllFlights()));
             return operator;
         }
     }
+
+
 }

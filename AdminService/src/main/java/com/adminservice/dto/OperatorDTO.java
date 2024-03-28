@@ -8,7 +8,7 @@ import java.util.List;
 public class OperatorDTO {
 
     private Integer id;
-    List<Flight> allFlights;
+    List<FlightDTO> allFlights;
     private String name;
     private String iban;
     private String apiSearch;
@@ -16,7 +16,7 @@ public class OperatorDTO {
     public OperatorDTO() {
     }
 
-    public OperatorDTO(Integer id, List<Flight> allFlights, String name, String iban, String apiSearch) {
+    public OperatorDTO(Integer id, List<FlightDTO> allFlights, String name, String iban, String apiSearch) {
         this.id = id;
         this.allFlights = allFlights;
         this.name = name;
@@ -32,11 +32,11 @@ public class OperatorDTO {
         this.id = id;
     }
 
-    public List<Flight> getAllFlights() {
+    public List<FlightDTO> getAllFlights() {
         return allFlights;
     }
 
-    public void setAllFlights(List<Flight> allFlights) {
+    public void setAllFlights(List<FlightDTO> allFlights) {
         this.allFlights = allFlights;
     }
 

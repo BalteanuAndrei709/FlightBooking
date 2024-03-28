@@ -1,20 +1,18 @@
 package com.adminservice.dto;
 
-import com.adminservice.model.Operator;
-public class FlightDTO {
+public class FlightDTONoOperator {
+
     private Integer id;
-    private OperatorDTO operatorDTO;
     private String leaving;
     private String destination;
     private Integer numberSeatsTotal;
     private Integer numberSeatsAvailable;
 
-    public FlightDTO(){}
+    public FlightDTONoOperator(){}
 
-    public FlightDTO(Integer id, OperatorDTO operatorDTO, String leaving, String destination,
+    public FlightDTONoOperator(Integer id, String leaving, String destination,
                      Integer numberSeatsTotal, Integer numberSeatsAvailable) {
         this.id = id;
-        this.operatorDTO = operatorDTO;
         this.leaving = leaving;
         this.destination = destination;
         this.numberSeatsTotal = numberSeatsTotal;
@@ -27,14 +25,6 @@ public class FlightDTO {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public OperatorDTO getOperator() {
-        return operatorDTO;
-    }
-
-    public void setOperator(OperatorDTO operatorDTO) {
-        this.operatorDTO = operatorDTO;
     }
 
     public String getLeaving() {

@@ -1,8 +1,8 @@
 package com.adminservice.mapper;
 
 import com.adminservice.dto.FlightDTO;
+import com.adminservice.dto.FlightDTONoOperator;
 import com.adminservice.model.Flight;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -10,18 +10,14 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class FlightMapper {
+public class FlightDTONoOperatorMapper {
 
-    @Autowired
-    OperatorMapper operatorMapper;
-
-    public FlightDTO toDTO(Flight flight) {
+    public FlightDTONoOperator toDTO(Flight flight) {
         if (flight == null)
             return null;
         else {
-            FlightDTO flightDTO = new FlightDTO();
+            FlightDTONoOperator flightDTO = new FlightDTONoOperator();
             flightDTO.setId(flight.getId());
-            flightDTO.setOperator(operatorMapper.toDto(flight.getOperator()));
             flightDTO.setLeaving(flight.getLeaving());
             flightDTO.setDestination(flight.getDestination());
             flightDTO.setNumberSeatsTotal(flight.getNumberSeatsTotal());
@@ -30,13 +26,12 @@ public class FlightMapper {
         }
     }
 
-    public Flight toEntity(FlightDTO flightDTO) {
+    public Flight toEntity(FlightDTONoOperator flightDTO) {
         if (flightDTO == null) {
             return null;
         } else {
             Flight flight = new Flight();
             flight.setId(flightDTO.getId());
-            flight.setOperator(operatorMapper.toEntity(flightDTO.getOperator()));
             flight.setLeaving(flightDTO.getLeaving());
             flight.setDestination(flightDTO.getDestination());
             flight.setNumberSeatsTotal(flightDTO.getNumberSeatsTotal());
@@ -45,26 +40,25 @@ public class FlightMapper {
         }
     }
 
-    public List<FlightDTO> entitiesToDTOs(List<Flight> flightList) {
+    public List<FlightDTONoOperator> entitiesToDTOs(List<Flight> flightList) {
         if (flightList.isEmpty())
             return Collections.emptyList();
 
-        List<FlightDTO> flightDTOS = new ArrayList<>();
+        List<FlightDTONoOperator> flightDTOS = new ArrayList<>();
         for (Flight flight : flightList) {
             flightDTOS.add(toDTO(flight));
         }
         return flightDTOS;
     }
 
-    public List<Flight> dtosToEntities(List<FlightDTO> dtoList) {
+    public List<Flight> dtosToEntities(List<FlightDTONoOperator> dtoList) {
         if (dtoList.isEmpty())
             return Collections.emptyList();
 
         List<Flight> flightList = new ArrayList<>();
-        for (FlightDTO dto : dtoList) {
+        for (FlightDTONoOperator dto : dtoList) {
             flightList.add(toEntity(dto));
         }
         return flightList;
     }
-
 }

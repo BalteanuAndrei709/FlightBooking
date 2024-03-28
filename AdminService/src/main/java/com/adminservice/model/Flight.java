@@ -23,6 +23,18 @@ public class Flight {
     @Column(nullable = false)
     private Integer numberSeatsAvailable;
 
+    public Flight() {
+    }
+
+    public Flight(Integer id, Operator operator, String leaving, String destination, Integer numberSeatsTotal, Integer numberSeatsAvailable) {
+        this.id = id;
+        this.operator = operator;
+        this.leaving = leaving;
+        this.destination = destination;
+        this.numberSeatsTotal = numberSeatsTotal;
+        this.numberSeatsAvailable = numberSeatsAvailable;
+    }
+
     public Integer getId() {
         return id;
     }

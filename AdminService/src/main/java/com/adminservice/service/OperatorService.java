@@ -1,7 +1,11 @@
 package com.adminservice.service;
 
+import com.adminservice.dto.FlightDTO;
+import com.adminservice.dto.FlightDTONoOperator;
 import com.adminservice.dto.OperatorDTO;
 import com.adminservice.exception.OperatorException;
+import com.adminservice.mapper.FlightDTONoOperatorMapper;
+import com.adminservice.mapper.FlightMapper;
 import com.adminservice.mapper.OperatorMapper;
 import com.adminservice.model.Flight;
 import com.adminservice.model.Operator;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.management.openmbean.OpenDataException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,6 +27,8 @@ public class OperatorService {
     OperatorRepository operatorRepository;
     @Autowired
     OperatorMapper operatorMapper;
+    @Autowired
+    FlightDTONoOperatorMapper flightMapper;
 
     public Optional<OperatorDTO> findById(Integer id) {
         Optional<Operator> operator = operatorRepository.findById(id);
@@ -33,12 +40,14 @@ public class OperatorService {
 
 
     //schimbare cu FlightDTO
-    public Optional<List<Flight>> findFlightsByOperatorName(String name) {
+    public Optional<List<FlightDTONoOperator>> findFlightsByOperatorName(String name) {
         boolean isPresent;
         isPresent = operatorRepository.findByName(name).isPresent();
         if (isPresent) {
-            return operatorRepository.findByName(name)
-                    .map(Operator::getAllFlights);
+
+            return Optional.of(operatorRepository.findByName(name).get().getAllFlights().stream()
+                    .map(flightMapper::toDTO)
+                    .toList());
         } else
             throw new OperatorException("This operator has no flights available.");
 
