@@ -8,6 +8,7 @@ import com.adminservice.mapper.OperatorMapper;
 import com.adminservice.model.Flight;
 import com.adminservice.model.Operator;
 import com.adminservice.repository.FlightRepository;
+import com.adminservice.repository.OperatorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,17 +21,20 @@ public class FlightService {
     private final FlightMapper flightMapper;
     private final FlightRepository flightRepository;
 
+    private final OperatorRepository operatorRepository;
     private final OperatorMapper operatorMapper;
     private final OperatorService operatorService;
 
     @Autowired
     public FlightService(FlightMapper flightMapper, FlightRepository flightRepository,
-                         OperatorMapper operatorMapper, OperatorService operatorService) {
+                         OperatorMapper operatorMapper, OperatorService operatorService,
+                         OperatorRepository operatorRepository) {
 
         this.flightMapper = flightMapper;
         this.flightRepository = flightRepository;
         this.operatorMapper = operatorMapper;
         this.operatorService = operatorService;
+        this.operatorRepository = operatorRepository;
     }
 
     public Optional<FlightDTO> getFlight(Integer id) {
@@ -48,26 +52,24 @@ public class FlightService {
         Optional<OperatorDTO> operatorDTO = operatorService.findByName(operatorName);
         if (operatorDTO.isPresent()) {
             Flight flight = flightMapper.toEntity(dto);
-            flight.setOperator(operatorMapper.toEntity(operatorDTO.get()));
-            flightRepository.save(flight);
+            var operator = operatorMapper.toEntity(operatorDTO.get());
+            flight.setOperator(operator);
+            operator.getAllFlights().add(flight);
+            operatorRepository.save(operator);
         }
     }
 
     public boolean updateFlight(FlightDTO updatedFlightDto, Integer id) {
-        Optional<Flight> flightOptional = flightRepository.findById(id);
-        boolean result = flightOptional.isPresent();
-        if (result) {
-            Operator currentOperator = flightOptional.get().getOperator();   // save operator to be set again after the update takes place
-            FlightDTO existingFlight = flightMapper.toDTO(flightOptional.get());
-            existingFlight.setDestination(updatedFlightDto.getDestination());
-            existingFlight.setLeaving(updatedFlightDto.getLeaving());
-            existingFlight.setNumberSeatsTotal(updatedFlightDto.getNumberSeatsTotal());
-            existingFlight.setNumberSeatsAvailable(updatedFlightDto.getNumberSeatsAvailable());
-            existingFlight.setDateOfDeparture(updatedFlightDto.getDateOfDeparture());
-            existingFlight.setTimeOfDeparture(updatedFlightDto.getTimeOfDeparture());
+        var flightOptional = flightRepository.findById(id);
 
-            Flight flight = flightMapper.toEntity(existingFlight);
-            flight.setOperator(currentOperator);
+        if (flightOptional.isPresent()) {
+            var flight = flightOptional.get();
+            flight.setDestination(updatedFlightDto.getDestination());
+            flight.setLeaving(updatedFlightDto.getLeaving());
+            flight.setNumberSeatsTotal(updatedFlightDto.getNumberSeatsTotal());
+            flight.setNumberSeatsAvailable(updatedFlightDto.getNumberSeatsAvailable());
+            flight.setDateOfDeparture(updatedFlightDto.getDateOfDeparture());
+            flight.setTimeOfDeparture(updatedFlightDto.getTimeOfDeparture());
             flightRepository.save(flight);
             return true;
         } else

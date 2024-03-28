@@ -1,6 +1,7 @@
 package com.adminservice.controller;
 
 
+import com.adminservice.dto.FlightDTO;
 import com.adminservice.dto.OperatorDTO;
 import com.adminservice.model.Flight;
 import com.adminservice.service.OperatorService;
@@ -17,17 +18,19 @@ import java.util.Optional;
 @RequestMapping("/operator")
 public class OperatorController {
 
-    @Autowired
-    OperatorService operatorService;
+    private  final OperatorService operatorService;
+
+    public OperatorController(OperatorService operatorService) {
+        this.operatorService = operatorService;
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Optional<OperatorDTO>> getOperatorById(@PathVariable Integer id){
         return new ResponseEntity<>(operatorService.findById(id), HttpStatus.OK);
     }
 
-    //schimbare cu FlightDTO
     @GetMapping("/operatorName/{operatorName}")
-    public ResponseEntity<Optional<List<Flight>>> getFlightsByOperatorName(@PathVariable String operatorName){
+    public ResponseEntity<Optional<List<FlightDTO>>> getFlightsByOperatorName(@PathVariable String operatorName){
         return new ResponseEntity<>(operatorService.findFlightsByOperatorName(operatorName), HttpStatus.OK);
     }
 

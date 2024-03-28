@@ -17,7 +17,7 @@ public class FlightMapper {
         else {
             FlightDTO flightDTO = new FlightDTO();
             flightDTO.setId(flight.getId());
-            //flightDTO.setOperator(flight.getOperator());
+            flightDTO.setOperatorName(flight.getOperator().getName());
             flightDTO.setLeaving(flight.getLeaving());
             flightDTO.setDestination(flight.getDestination());
             flightDTO.setNumberSeatsTotal(flight.getNumberSeatsTotal());
@@ -34,7 +34,6 @@ public class FlightMapper {
         } else {
             Flight flight = new Flight();
             flight.setId(flightDTO.getId());
-            //flight.setOperator(flightDTO.getOperator());
             flight.setLeaving(flightDTO.getLeaving());
             flight.setDestination(flightDTO.getDestination());
             flight.setNumberSeatsTotal(flightDTO.getNumberSeatsTotal());

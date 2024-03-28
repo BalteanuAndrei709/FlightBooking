@@ -18,7 +18,6 @@ public class Flight {
     private Integer id;
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(referencedColumnName = "id", name = "operator_id")
-    @JsonBackReference
     private Operator operator;
     @Column(nullable = false)
     private String leaving;
