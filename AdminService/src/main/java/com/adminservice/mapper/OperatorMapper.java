@@ -5,8 +5,16 @@ import com.adminservice.dto.OperatorDTO;
 import com.adminservice.model.Operator;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+
 @Component
 public class OperatorMapper {
+
+    private final FlightMapper flightMapper;
+
+    public OperatorMapper(FlightMapper flightMapper) {
+        this.flightMapper = flightMapper;
+    }
 
     public OperatorDTO toDto(Operator operator) {
         if (operator == null)
@@ -17,7 +25,7 @@ public class OperatorMapper {
             operatorDTO.setIban(operator.getIban());
             operatorDTO.setName(operator.getName());
             operatorDTO.setApiSearch(operator.getApiSearch());
-            operatorDTO.setAllFlights(operator.getAllFlights());
+            operatorDTO.setAllFlights(operator.getAllFlights().stream().map(flightMapper::toDTO).toList());
             return operatorDTO;
         }
     }
@@ -31,7 +39,7 @@ public class OperatorMapper {
             operator.setIban(operatorDTO.getIban());
             operator.setName(operatorDTO.getName());
             operator.setApiSearch(operatorDTO.getApiSearch());
-            operator.setAllFlights(operatorDTO.getAllFlights());
+            operator.setAllFlights(new ArrayList<>());
             return operator;
         }
     }

@@ -17,11 +17,13 @@ public class FlightMapper {
         else {
             FlightDTO flightDTO = new FlightDTO();
             flightDTO.setId(flight.getId());
-            flightDTO.setOperator(flight.getOperator());
+            flightDTO.setOperatorName(flight.getOperator().getName());
             flightDTO.setLeaving(flight.getLeaving());
             flightDTO.setDestination(flight.getDestination());
             flightDTO.setNumberSeatsTotal(flight.getNumberSeatsTotal());
             flightDTO.setNumberSeatsAvailable(flight.getNumberSeatsAvailable());
+            flightDTO.setDateOfDeparture(flight.getDateOfDeparture());
+            flightDTO.setTimeOfDeparture(flight.getTimeOfDeparture());
             return flightDTO;
         }
     }
@@ -32,11 +34,12 @@ public class FlightMapper {
         } else {
             Flight flight = new Flight();
             flight.setId(flightDTO.getId());
-            flight.setOperator(flightDTO.getOperator());
             flight.setLeaving(flightDTO.getLeaving());
             flight.setDestination(flightDTO.getDestination());
             flight.setNumberSeatsTotal(flightDTO.getNumberSeatsTotal());
             flight.setNumberSeatsAvailable(flightDTO.getNumberSeatsAvailable());
+            flight.setDateOfDeparture(flightDTO.getDateOfDeparture());
+            flight.setTimeOfDeparture(flightDTO.getTimeOfDeparture());
             return flight;
         }
     }
