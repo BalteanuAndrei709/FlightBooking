@@ -5,6 +5,7 @@
 -Spring(Boot, WEB, Data) <br />
 -Postman <br />
 -Git (as you can see from this ReadME xD ) <br />
+-Apache Kafka (to be added) <br />
 
 Admin can add flights in two ways:
 1. Add a list of flights at the initial moment, when the operator is also created.
