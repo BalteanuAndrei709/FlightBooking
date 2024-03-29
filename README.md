@@ -14,7 +14,7 @@ Flight booking is an microservices application that contains the entire business
 -Docker <br/>
 
 <h2>Database Model</h2>
-![image](https://github.com/BalteanuAndrei709/FlightBooking/assets/55703977/c87ae7bd-51f5-4c65-8b6b-8e2584b89ad2)
+<img width="510" alt="image" src="https://github.com/BalteanuAndrei709/FlightBooking/assets/55703977/c87ae7bd-51f5-4c65-8b6b-8e2584b89ad2">
 
 
 
