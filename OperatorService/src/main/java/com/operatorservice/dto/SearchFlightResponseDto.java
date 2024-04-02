@@ -1,21 +1,25 @@
 package com.operatorservice.dto;
 
 import com.operatorservice.model.Flight;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
+
 public class SearchFlightResponseDto {
 
-    private final Flight leavingFlight;
-    private final Flight returningFlight;
+    private final List<Flight> leavingFlight;
+    private final List<Flight> returningFlight;
 
-    public Flight getLeavingFlight() {
+    public SearchFlightResponseDto(List<Flight> leavingFlight, List<Flight> returningFlight) {
+        this.leavingFlight = leavingFlight;
+        this.returningFlight = returningFlight;
+    }
+
+    public List<Flight> getLeavingFlight() {
         return leavingFlight;
     }
 
-    public Flight getReturningFlight() {
+    public List<Flight> getReturningFlight() {
         return returningFlight;
-    }
-
-    public SearchFlightResponseDto(Flight leavingFlight, Flight returningFlight) {
-        this.leavingFlight = leavingFlight;
-        this.returningFlight = returningFlight;
     }
 }

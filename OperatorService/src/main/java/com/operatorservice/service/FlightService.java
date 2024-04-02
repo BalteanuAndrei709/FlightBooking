@@ -5,9 +5,7 @@ import com.operatorservice.dto.SearchFlightResponseDto;
 import com.operatorservice.mapper.FlightMapper;
 import com.operatorservice.model.Flight;
 import com.operatorservice.repository.FlightRepository;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -63,15 +61,36 @@ public class FlightService {
                 });
     }
 
-
+    /**
+     * Method that contains the business logic for searching a flight based on given criteria.
+     * @param leaving
+     * The city from which the flight takes off.
+     * @param destination
+     * The city in which the flight will arrive.
+     * @param departureDate
+     * The date when the flight departures.
+     * @param returnDate
+     * The date when the user want to return.
+     * @return
+     * A mono of SearchFlightResponseDto, which contains the closest flights for leaving and arriving that
+     * match the given detail.
+     */
     public Mono<SearchFlightResponseDto> searchFlight(String leaving, String destination, LocalDate departureDate, LocalDate returnDate) {
+        Flux<Flight> leavingFlights = flightRepository.findLeavingFlights(
+                operator, leaving, destination, departureDate, returnDate);
+        Flux<Flight> returningFlights = leavingFlights
+                .flatMap(f -> flightRepository.findReturningFlights(
+                        operator,
+                        f.getDestination(),
+                        f.getLeaving(),
+                        f.getDepartureDate(),
+                        returnDate))
+                .distinct();
 
-        Flux<Flight> leavingFlights = flightRepository.getFlightsByLeavingAndDestination(
-                leaving, destination
+        return Mono.zip(
+                leavingFlights.collectList(),
+                returningFlights.collectList(),
+                SearchFlightResponseDto::new
         );
-        var leavingFlight = leavingFlights
-                .reduce((f1, f2) -> f1.getDepartureDate().isBefore(f2.getDepartureDate()) ? f1 : f2);
-        return Mono.zip(leavingFlight, leavingFlight, SearchFlightResponseDto::new);
-
     }
 }

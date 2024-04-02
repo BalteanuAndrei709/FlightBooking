@@ -1,13 +1,12 @@
 package com.operatorservice.model;
-
 import jakarta.persistence.Column;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.Objects;
 
-@Document
+@Document(value = "flight_compound_index")
 public class Flight {
 
     @Id
@@ -20,6 +19,19 @@ public class Flight {
     private String leaving;
     private String destination;
     private Float price;
+
+    public Flight(String id, String operator, LocalDate departureDate, String departureTime, String leaving, String destination, Float price) {
+        this.id = id;
+        this.operator = operator;
+        this.departureDate = departureDate;
+        this.departureTime = departureTime;
+        this.leaving = leaving;
+        this.destination = destination;
+        this.price = price;
+    }
+
+    public Flight() {
+    }
 
     public String getId() {
         return id;
@@ -75,5 +87,18 @@ public class Flight {
 
     public void setPrice(Float price) {
         this.price = price;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Flight flight = (Flight) o;
+        return Objects.equals(id, flight.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

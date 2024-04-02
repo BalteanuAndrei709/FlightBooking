@@ -1,4 +1,4 @@
-package com.operatorservice.UnitTests;
+package com.operatorservice.UnitTests.FlightController;
 
 import com.operatorservice.controller.FlightController;
 import com.operatorservice.dto.FlightDto;
@@ -20,31 +20,25 @@ import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = FlightController.class)
 @Import(FlightMapper.class)
-public class FlightControllerTest {
+public class AddFlightTest {
 
     @MockBean
     private FlightService flightService;
-
     @Autowired
     private FlightMapper flightMapper;
-
     @Autowired
     private WebTestClient webClient;
-
     @Value("${operator.name}")
     private String operator;
-
-    private final String url = "/api/v1.0/flights";
+    String url = "/api/v1.0/flights";
 
     @Test
     void testAddFlight() {
@@ -52,9 +46,9 @@ public class FlightControllerTest {
         FlightDto flightDto = new FlightDto();
         flightDto.setDepartureDate(LocalDate.parse("2024-04-01"));
         flightDto.setDestination("Bucharest");
-        flightDto.setLeaving("Craiova");
+        flightDto.setLeaving("London");
         flightDto.setPrice(299.99f);
-        flightDto.setDepartureTime(LocalTime.of(10, 5, 0));
+        flightDto.setDepartureTime("10:30");
 
         Flight expectedFlight = flightMapper.mapDtoToFlight(flightDto);
         expectedFlight.setOperator(operator);
@@ -71,11 +65,11 @@ public class FlightControllerTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody(Flight.class)
-                .consumeWith(result ->{
+                .consumeWith(result -> {
                     var existsFlight = result.getResponseBody();
 
                     assert Objects.requireNonNull(existsFlight).getId() != null;
-                    assertEquals("mockId",existsFlight.getId());
+                    assertEquals("mockId", existsFlight.getId());
                     assertEquals(operator, existsFlight.getOperator());
                     assertEquals(existsFlight.getDepartureTime(), flightDto.getDepartureTime());
                 });

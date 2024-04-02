@@ -53,12 +53,27 @@ public class FlightController {
         return flightService.getIncomingFlightsOfOperator(operator).log();
     }
 
-    @GetMapping("/{leaving}/{destination}/{departureDate}/{returnDate}")
+    /**
+     * Method that handles the HTTP requests for searching a flight using specific details like
+     * departure/arriving city and departure/return date.
+     * @param leaving
+     * The city from which the flight takes off.
+     * @param destination
+     * The city in which the flight will arrive.
+     * @param departureDate
+     * The date when the flight departures.
+     * @param returnDate
+     * The date when the user want to return.
+     * @return
+     * A mono of SearchFlightResponseDto, which contains the closest flights for leaving and arriving that
+     * match the given detail.
+     */
+    @GetMapping("/{leaving}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<SearchFlightResponseDto> searchFlight(@PathVariable(name = "leaving") String leaving,
-                                                      @PathVariable(name = "destination") String destination,
-                                                      @PathVariable(name = "departureDate") LocalDate departureDate,
-                                                      @PathVariable(name = "returnDate") LocalDate returnDate){
+                                                     @RequestParam(name = "destination", required = false) String destination,
+                                                     @RequestParam(name = "departureDate", required = false) LocalDate departureDate,
+                                                     @RequestParam(name = "returnDate", required = false) LocalDate returnDate){
         return flightService.searchFlight(leaving, destination, departureDate, returnDate);
     }
 
