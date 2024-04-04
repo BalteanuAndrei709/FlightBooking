@@ -1,6 +1,12 @@
 package com.payment.paymentservice.model;
 
-public class CompletedOrder {
+import java.io.Serializable;
+
+/**
+ * This model is used to represent the order that was captured.
+ * It uses the payId generated after creating a new payment to identify it inside PayPal.
+ */
+public class CompletedOrder implements Serializable {
     private String status;
     private String payId;
 
