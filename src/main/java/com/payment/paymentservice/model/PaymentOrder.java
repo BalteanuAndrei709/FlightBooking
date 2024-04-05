@@ -2,6 +2,9 @@ package com.payment.paymentservice.model;
 
 import java.io.Serializable;
 
+/**
+ * Represents the order that has been created
+ */
 public class PaymentOrder implements Serializable {
 
     private String status;

@@ -5,6 +5,9 @@ import com.paypal.orders.Payer;
 
 import java.io.Serializable;
 
+/**
+ * Model used to test the capturing of the payee and payer informations
+ */
 public class GetOrder implements Serializable {
     Payee payee;
     String payerId;
