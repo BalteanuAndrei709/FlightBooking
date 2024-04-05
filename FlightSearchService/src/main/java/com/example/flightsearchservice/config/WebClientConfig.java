@@ -1,18 +1,11 @@
 package com.example.flightsearchservice.config;
 
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.*;
-
-import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-
-import java.net.URI;
-import java.time.Duration;
 
 @Configuration
 public class WebClientConfig {
@@ -40,7 +33,7 @@ public class WebClientConfig {
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // Increase max buffer size to 10 MB
                 .build();
 
-        HttpClient httpClient = HttpClient.create().wiretap(true);
+        HttpClient httpClient = HttpClient.create().wiretap(true); //requests and responses passing through the client will be logged
         ReactorClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
 
         return WebClient

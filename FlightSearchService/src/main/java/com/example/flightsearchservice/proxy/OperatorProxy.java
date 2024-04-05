@@ -8,8 +8,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
-
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collections;
 

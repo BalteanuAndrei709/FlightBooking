@@ -1,12 +1,9 @@
 package com.example.flightsearchservice.dto;
 
 import com.example.flightsearchservice.model.Flight;
-
-
-import java.util.Iterator;
 import java.util.List;
-import java.util.Spliterator;
-import java.util.function.Consumer;
+
+
 
 public class SearchFlightResponseDto  {
 

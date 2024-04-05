@@ -1,7 +1,5 @@
 package com.example.flightsearchservice.model;
 
-import org.springframework.web.bind.annotation.RequestParam;
-
 import java.time.LocalDate;
 
 public class Flight {
