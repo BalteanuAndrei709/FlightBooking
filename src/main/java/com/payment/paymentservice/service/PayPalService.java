@@ -134,9 +134,9 @@ public class PayPalService {
             orderService.updateOrder(orderStatus, order.id());
             return new CompletedOrder(order.status(), token);
         } else {
-            OrderStatus orderStatus = orderService.findByOrderId(order.id());
+            OrderStatus orderStatus = orderService.findByOrderId(token);
             orderStatus.setStatus("CANCELED");
-            orderService.updateOrder(orderStatus, order.id());
+            orderService.updateOrder(orderStatus, orderStatus.getOrderId());
             return new CompletedOrder(order.status(), token);
         }
     }
