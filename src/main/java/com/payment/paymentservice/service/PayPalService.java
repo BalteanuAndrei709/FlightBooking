@@ -4,6 +4,7 @@ import com.payment.paymentservice.model.CompletedOrder;
 import com.payment.paymentservice.model.GetOrder;
 import com.payment.paymentservice.model.OrderStatus;
 import com.payment.paymentservice.model.PaymentOrder;
+import com.payment.paymentservice.utils.OrdersDeleteRequest;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
@@ -157,6 +158,21 @@ public class PayPalService {
             getOrderObj.setPayeeEmail(getOrderObj.getPayee().email());
 
             return getOrderObj;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void delete(String orderId) {
+
+        OrdersDeleteRequest deleteRequest = new OrdersDeleteRequest(orderId);
+
+        try {
+            HttpResponse<Order> httpResponse = payPalHttpClient.execute(deleteRequest);
+            Order order = httpResponse.result();
+            System.out.println(order);
+
+            //OrderStatus orderStatus = order.
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -33,4 +33,9 @@ public class PaymentController {
     public GetOrder getPayment(@RequestParam("token") String token) {
         return payPalService.getOrder(token);
     }
+
+    @DeleteMapping("/delete")
+    public void deletePayment(@RequestParam("token") String token) {
+        payPalService.delete(token);
+    }
 }
