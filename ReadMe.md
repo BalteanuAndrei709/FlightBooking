@@ -6,7 +6,7 @@
 
     !! 1 -> publish payment created by you in PayPal (returns the url that redirects you for processing the payment).
 
-    2. Capture Order: Confirm/execute the payment by calling back PayPal.
+    2. Capture Order: Confirm/execute the payment created. Once the capture occurs, the money is transfered betwen the payer and the payee.
 
 
 

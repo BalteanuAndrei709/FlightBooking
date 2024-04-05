@@ -4,7 +4,6 @@ import com.payment.paymentservice.model.CompletedOrder;
 import com.payment.paymentservice.model.GetOrder;
 import com.payment.paymentservice.model.OrderStatus;
 import com.payment.paymentservice.model.PaymentOrder;
-import com.payment.paymentservice.repository.OrderRepository;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
@@ -137,7 +136,7 @@ public class PayPalService {
             OrderStatus orderStatus = orderService.findByOrderId(token);
             orderStatus.setStatus("CANCELED");
             orderService.updateOrder(orderStatus, orderStatus.getOrderId());
-            return new CompletedOrder(order.status(), token);
+            return new CompletedOrder(orderStatus.getStatus().toLowerCase(), token);
         }
     }
 
