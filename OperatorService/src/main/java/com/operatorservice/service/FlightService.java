@@ -86,7 +86,6 @@ public class FlightService {
                         f.getDepartureDate(),
                         returnDate))
                 .distinct();
-
         return Mono.zip(
                 leavingFlights.collectList(),
                 returningFlights.collectList(),

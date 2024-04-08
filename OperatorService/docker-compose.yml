@@ -1,0 +1,76 @@
+version: '3.8'
+services:
+  configsvr1:
+    image: mongo:4.4
+    command: mongod --configsvr --replSet configReplSet --bind_ip_all --port 27019
+    volumes:
+      - ./config.sh:/script.sh
+    ports:
+      - "27019:27019"
+
+  configsvr2:
+    image: mongo:4.4
+    command: mongod --configsvr --replSet configReplSet --bind_ip_all --port 27020
+    ports:
+      - "27020:27020"
+
+  configsvr3:
+    image: mongo:4.4
+    command: mongod --configsvr --replSet configReplSet --bind_ip_all --port 27021
+    ports:
+      - "27021:27021"
+
+  shard1svr:
+    image: mongo:4.4
+    command: mongod --shardsvr --replSet shard1ReplSet --bind_ip_all --port 27017
+    volumes:
+      - ./shard1.sh:/script.sh
+      - ./volumes/shard1:/data/db
+    ports:
+      - "27022:27017"
+
+  shard2svr:
+    image: mongo:4.4
+    command: mongod --shardsvr --replSet shard2ReplSet --bind_ip_all --port 27017
+    volumes:
+      - ./shard2.sh:/script.sh
+      - ./volumes/shard2:/data/db
+    ports:
+      - "27023:27017"
+
+  shard3svr:
+    image: mongo:4.4
+    command: mongod --shardsvr --replSet shard3ReplSet --bind_ip_all --port 27017
+    volumes:
+      - ./shard3.sh:/script.sh
+      - ./volumes/shard3:/data/db
+    ports:
+      - "27024:27017"
+
+  mongos:
+    image: mongo:4.4
+    depends_on:
+      - configsvr1
+      - configsvr2
+      - configsvr3
+    command: mongos --configdb configReplSet/configsvr1:27019,configsvr2:27020,configsvr3:27021 --bind_ip_all
+    volumes:
+      - ./mongod.sh:/script.sh
+    ports:
+      - "27018:27017"
+
+  operator-service:
+    build:
+      context: .
+    ports:
+      - "8087:8090"
+    depends_on:
+      - mongos
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongos:27017/operator
+
+volumes:
+    shard1data:
+    shard2data:
+    shard3data:
+
