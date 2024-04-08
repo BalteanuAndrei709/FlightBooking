@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27020:27017"
+    volumes:
+      - ./volumes/operator_service:/data/db
+
+  operator_service:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator_service
+    ports:
+      - "8087:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+
+volumes:
+  db:
