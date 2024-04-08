@@ -4,6 +4,8 @@ import com.payment.paymentservice.model.OrderStatus;
 import com.payment.paymentservice.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+
 
 @Service
 public class OrderService {
@@ -14,18 +16,21 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public void addOrder(OrderStatus orderStatus) {
-        orderRepository.save(orderStatus);
+    public Mono<OrderStatus> addOrder(OrderStatus orderStatus) {
+        return orderRepository.save(orderStatus);
     }
 
-    public OrderStatus findByOrderId(String orderId) {
+    public Mono<OrderStatus> findByOrderId(String orderId) {
         return orderRepository.findByOrderId(orderId);
     }
 
-    public void updateOrder(OrderStatus orderStatus, String orderId) {
-        OrderStatus existingOrderStatus = orderRepository.findByOrderId(orderId);
-        existingOrderStatus.setStatus(orderStatus.getStatus());
-        orderRepository.save(existingOrderStatus);
+
+    public Mono<OrderStatus> updateOrder(OrderStatus orderStatus, String orderId) {
+        Mono<OrderStatus> existingOrderStatus = orderRepository.findByOrderId(orderId);
+        return existingOrderStatus.flatMap(event -> {
+            event.setStatus(orderStatus.getStatus());
+            return orderRepository.save(event);
+        });
     }
 
 }

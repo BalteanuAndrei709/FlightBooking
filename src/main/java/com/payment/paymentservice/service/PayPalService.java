@@ -10,6 +10,7 @@ import com.paypal.orders.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.List;
@@ -103,7 +104,7 @@ public class PayPalService {
             OrderStatus orderStatus = new OrderStatus();
             orderStatus.setOrderId(order.id());
             orderStatus.setStatus("INITIATED");
-            orderService.addOrder(orderStatus);
+            orderService.addOrder(orderStatus).subscribe();
 
 
             return new PaymentOrder("success", order.id(), redirectUrl);
@@ -128,15 +129,21 @@ public class PayPalService {
             System.out.println(e.getMessage());
         }
         if (order.status() != null) { // in cazul asta va avea mereu COMPLETED daca plata a fost efectuata cu succes
-            OrderStatus orderStatus = orderService.findByOrderId(order.id());
-            orderStatus.setStatus("SUCCESS");
-            orderService.updateOrder(orderStatus, order.id());
+            final String orderId = order.id();
+            Mono<OrderStatus> mono = orderService.findByOrderId(orderId);
+
+            mono.subscribe(e -> {
+                e.setStatus("SUCCESS");
+                orderService.updateOrder(e, orderId).subscribe();
+            });
             return new CompletedOrder(order.status(), token);
         } else {
-            OrderStatus orderStatus = orderService.findByOrderId(token);
-            orderStatus.setStatus("CANCELED");
-            orderService.updateOrder(orderStatus, orderStatus.getOrderId());
-            return new CompletedOrder(orderStatus.getStatus().toLowerCase(), token);
+            Mono<OrderStatus> mono = orderService.findByOrderId(token);
+            mono.subscribe(e -> {
+                e.setStatus("CANCELED");
+                orderService.updateOrder(e, e.getOrderId()).subscribe();
+            });
+            return new CompletedOrder("canceled", token);
         }
     }
 

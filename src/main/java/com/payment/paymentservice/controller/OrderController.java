@@ -19,8 +19,8 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @GetMapping("/{id}")
+    /*@GetMapping("/{id}")
     public OrderStatus getOrderById(@PathVariable(name = "id") String orderId) {
         return orderService.findByOrderId(orderId);
-    }
+    }*/
 }
