@@ -21,7 +21,7 @@ public class FlightService {
 
     private final FlightRepository flightRepository;
     private final FlightMapper flightMapper;
-    @Value("${operator.name}")
+    @Value("${OPERATOR_NAME}")
     private String operator;
 
     public FlightService(FlightRepository flightRepository, FlightMapper flightMapper) {
@@ -86,7 +86,6 @@ public class FlightService {
                         f.getDepartureDate(),
                         returnDate))
                 .distinct();
-
         return Mono.zip(
                 leavingFlights.collectList(),
                 returningFlights.collectList(),
