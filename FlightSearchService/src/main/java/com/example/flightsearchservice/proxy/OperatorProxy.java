@@ -25,9 +25,11 @@ public class OperatorProxy {
     public Flux<SearchFlightResponseDto> getAll(String leaving,
                                                 String optionalDestination,
                                                 LocalDate optionalDepartureDate,
-                                                LocalDate optionalReturnDate) {
+                                                LocalDate optionalReturnDate,
+                                                Integer pageNumber,
+                                                Integer pageSize) {
 
-        String uri = uriBuilder(leaving, optionalDestination, optionalDepartureDate, optionalReturnDate);
+        String uri = uriBuilder(leaving, optionalDestination, optionalDepartureDate, optionalReturnDate, pageNumber, pageSize);
 
         Flux<SearchFlightResponseDto> fluxLufthansa = fluxBuilder(webClientLufthansa, uri);
 
@@ -55,7 +57,9 @@ public class OperatorProxy {
     private String uriBuilder(String leaving,
                               String optionalDestination,
                               LocalDate optionalDepartureDate,
-                              LocalDate optionalReturnDate){
+                              LocalDate optionalReturnDate,
+                              Integer pageNumber,
+                              Integer pageSize){
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath("/" + leaving);
 
         if (!StringUtils.isEmpty(optionalDestination)) {
@@ -66,6 +70,12 @@ public class OperatorProxy {
         }
         if (optionalReturnDate != null) {
             uriBuilder.queryParam("returnDate", optionalReturnDate);
+        }
+        if (pageNumber != null) {
+            uriBuilder.queryParam("pageNumber", pageNumber);
+        }
+        if (pageSize != null) {
+            uriBuilder.queryParam("pageSize", pageSize);
         }
 
         return uriBuilder.toUriString();

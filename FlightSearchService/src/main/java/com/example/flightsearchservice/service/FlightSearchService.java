@@ -18,7 +18,9 @@ public class FlightSearchService {
     public Flux<SearchFlightResponseDto> getAll(String leaving,
                                                 String optionalDestination,
                                                 LocalDate optionalDepartureDate,
-                                                LocalDate optionalReturnDate){
-        return operatorProxy.getAll(leaving, optionalDestination, optionalDepartureDate, optionalReturnDate);
+                                                LocalDate optionalReturnDate,
+                                                Integer pageNumber,
+                                                Integer pageSize){
+        return operatorProxy.getAll(leaving, optionalDestination, optionalDepartureDate, optionalReturnDate, pageNumber, pageSize);
     }
 }

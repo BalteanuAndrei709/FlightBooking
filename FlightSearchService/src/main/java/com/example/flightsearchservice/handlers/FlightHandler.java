@@ -24,6 +24,8 @@ public class FlightHandler {
     public Mono<ServerResponse> getAll(ServerRequest request){
         var leaving = request.pathVariable("leaving");
         String optionalDestination = request.queryParam("destination").orElse(null);
+        Integer optionalPageNumber= Integer.valueOf(request.queryParam("pageNumber").orElse(String.valueOf(0)));
+        Integer optionalPageSize = Integer.valueOf(request.queryParam("pageSize").orElse(String.valueOf(100)));
 
         try {
             LocalDate optionalDepartureDate = request.queryParam("departureDate").map(LocalDate::parse).orElse(null);
@@ -35,7 +37,9 @@ public class FlightHandler {
 
                             optionalDestination,
                             optionalDepartureDate,
-                            optionalReturnDate),
+                            optionalReturnDate,
+                            optionalPageNumber,
+                            optionalPageSize),
                             SearchFlightResponseDto.class)
                     .log();
         } catch (IllegalArgumentException | DateTimeParseException e) {
