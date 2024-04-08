@@ -2,6 +2,7 @@ package com.operatorservice.repository;
 
 import com.operatorservice.model.Flight;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -39,8 +40,8 @@ public class CustomFlightRepositoryImpl implements CustomFlightRepository{
      */
     @Override
     public Flux<Flight> findLeavingFlights(String operator, String leaving, String destination,
-                                           LocalDate departureDate, LocalDate returnDate) {
-        Query query = new Query();
+                                           LocalDate departureDate, LocalDate returnDate, PageRequest pageRequest) {
+        Query query = new Query().with(pageRequest);
         query.addCriteria(Criteria.where("leaving").is(leaving));
         query.addCriteria(Criteria.where("operator").is(operator));
 
@@ -76,8 +77,8 @@ public class CustomFlightRepositoryImpl implements CustomFlightRepository{
      */
     @Override
     public Flux<Flight> findReturningFlights(String operator, String leaving, String destination,
-                                             LocalDate departureDate, LocalDate returnDate) {
-        Query query = new Query();
+                                             LocalDate departureDate, LocalDate returnDate, PageRequest pageRequest) {
+        Query query = new Query().with(pageRequest);
         query.addCriteria(Criteria.where("leaving").is(leaving));
         query.addCriteria(Criteria.where("destination").is(destination));
         query.addCriteria(Criteria.where("operator").is(operator));
@@ -87,7 +88,7 @@ public class CustomFlightRepositoryImpl implements CustomFlightRepository{
             LocalDateTime endOfDay = returnDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).minusSeconds(1).toLocalDateTime(); // Just before the next day starts in UTC
             query.addCriteria(Criteria.where("departureDate").gte(startOfDay).lt(endOfDay));
         }
-        else if (departureDate != null){
+        if (departureDate != null){
             LocalDateTime endOfDay = departureDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).minusSeconds(1).toLocalDateTime(); // Just before the next day starts in UTC
             query.addCriteria(Criteria.where("departureDate").gt(endOfDay));
         }

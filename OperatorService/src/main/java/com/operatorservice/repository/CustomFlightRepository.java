@@ -1,6 +1,7 @@
 package com.operatorservice.repository;
 
 import com.operatorservice.model.Flight;
+import org.springframework.data.domain.PageRequest;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
@@ -24,7 +25,7 @@ public interface CustomFlightRepository {
      * Flights the match the given criteria.
      */
     Flux<Flight> findLeavingFlights(String operator, String leaving, String destination,
-                                    LocalDate departureDate, LocalDate returnDate);
+                                    LocalDate departureDate, LocalDate returnDate, PageRequest pageRequest);
     /**
      * Method that search for custom flights.
      * @param leaving
@@ -39,5 +40,5 @@ public interface CustomFlightRepository {
      * Flights the match the given criteria.
      */
     Flux<Flight> findReturningFlights(String operator, String leaving, String destination,
-                                    LocalDate departureDate, LocalDate returnDate);
+                                    LocalDate departureDate, LocalDate returnDate, PageRequest pageRequest);
 }
