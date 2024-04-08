@@ -11,6 +11,9 @@ import com.adminservice.repository.FlightRepository;
 import com.adminservice.repository.OperatorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +27,8 @@ public class FlightService {
     private final OperatorRepository operatorRepository;
     private final OperatorMapper operatorMapper;
     private final OperatorService operatorService;
+
+    private static final Logger logger = LoggerFactory.getLogger(FlightService.class);
 
     @Autowired
     public FlightService(FlightMapper flightMapper, FlightRepository flightRepository,
@@ -84,5 +89,23 @@ public class FlightService {
         } else
             throw new FlightException("Flight with id " + id + " was not found");
     }
+
+    @Transactional
+    public void decrementSeatsAvailable(Integer flightId, int seatsToDecrement) {
+        Flight flight = flightRepository.findById(flightId)
+                .orElseThrow(() -> new IllegalArgumentException("Flight not found with id: " + flightId));
+        logger.info("Current available seats before decrement: {}", flight.getNumberSeatsAvailable());
+
+        int currentSeats = flight.getNumberSeatsAvailable();
+        if (currentSeats < seatsToDecrement) {
+            throw new IllegalStateException("Not enough available seats to decrement");
+        }
+
+        flight.setNumberSeatsAvailable(currentSeats - seatsToDecrement);
+        flightRepository.save(flight);
+        logger.info("Current available seats after decrement: {}", flight.getNumberSeatsAvailable());
+
+    }
+
 
 }
