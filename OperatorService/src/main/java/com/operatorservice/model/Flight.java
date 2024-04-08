@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDate;
 import java.util.Objects;
 
-@Document(value = "flight_sharding_leaving")
+@Document(value = "flight")
 public class Flight {
 
     @Id
