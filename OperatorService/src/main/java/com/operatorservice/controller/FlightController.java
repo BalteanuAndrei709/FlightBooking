@@ -73,8 +73,10 @@ public class FlightController {
     public Mono<SearchFlightResponseDto> searchFlight(@PathVariable(name = "leaving") String leaving,
                                                      @RequestParam(name = "destination", required = false) String destination,
                                                      @RequestParam(name = "departureDate", required = false) LocalDate departureDate,
-                                                     @RequestParam(name = "returnDate", required = false) LocalDate returnDate){
-        return flightService.searchFlight(leaving, destination, departureDate, returnDate);
+                                                     @RequestParam(name = "returnDate", required = false) LocalDate returnDate,
+                                                     @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNum,
+                                                     @RequestParam(name = "pageSize", defaultValue = "100", required = false) int pageSize){
+        return flightService.searchFlight(leaving, destination, departureDate, returnDate, pageNum, pageSize);
     }
 
 

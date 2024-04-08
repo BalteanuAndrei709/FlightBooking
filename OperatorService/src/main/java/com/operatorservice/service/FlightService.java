@@ -6,6 +6,8 @@ import com.operatorservice.mapper.FlightMapper;
 import com.operatorservice.model.Flight;
 import com.operatorservice.repository.FlightRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -75,17 +77,17 @@ public class FlightService {
      * A mono of SearchFlightResponseDto, which contains the closest flights for leaving and arriving that
      * match the given detail.
      */
-    public Mono<SearchFlightResponseDto> searchFlight(String leaving, String destination, LocalDate departureDate, LocalDate returnDate) {
+    public Mono<SearchFlightResponseDto> searchFlight(String leaving,
+                                                      String destination,
+                                                      LocalDate departureDate,
+                                                      LocalDate returnDate,
+                                                      int pageNumber,
+                                                      int pageSize) {
         Flux<Flight> leavingFlights = flightRepository.findLeavingFlights(
-                operator, leaving, destination, departureDate, returnDate);
-        Flux<Flight> returningFlights = leavingFlights
-                .flatMap(f -> flightRepository.findReturningFlights(
-                        operator,
-                        f.getDestination(),
-                        f.getLeaving(),
-                        f.getDepartureDate(),
-                        returnDate))
-                .distinct();
+                operator, leaving, destination, departureDate, returnDate, PageRequest.of(pageNumber, pageSize));
+        Flux<Flight> returningFlights = flightRepository.findReturningFlights(
+                operator, destination, leaving, departureDate, returnDate, PageRequest.of(pageNumber, pageSize));
+
         return Mono.zip(
                 leavingFlights.collectList(),
                 returningFlights.collectList(),
