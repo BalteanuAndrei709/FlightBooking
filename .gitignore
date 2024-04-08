@@ -31,3 +31,21 @@ build/
 
 ### VS Code ###
 .vscode/
+*.wt
+*.lock
+*.turtle
+*.js
+*.bson
+*.json
+*.interim
+volumes/operator_service/.mongodb/mongosh/6613bbe15c03546c847b2da8_log
+volumes/operator_service/.mongodb/mongosh/6613bbe19f23acd1027b2da8_log
+volumes/operator_service/.mongodb/mongosh/config
+volumes/operator_service/.mongodb/mongosh/mongosh_repl_history
+volumes/operator_service/diagnostic.data/metrics.2024-04-08T09-41-53Z-00000
+volumes/operator_service/diagnostic.data/metrics.2024-04-08T09-42-05Z-00000
+volumes/operator_service/diagnostic.data/metrics.2024-04-08T09-42-59Z-00000
+volumes/operator_service/journal/WiredTigerLog.0000000003
+volumes/operator_service/journal/WiredTigerPreplog.0000000001
+volumes/operator_service/journal/WiredTigerPreplog.0000000002
+volumes/operator_service/WiredTiger

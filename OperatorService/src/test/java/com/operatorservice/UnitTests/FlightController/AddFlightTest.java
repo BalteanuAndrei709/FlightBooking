@@ -36,8 +36,8 @@ public class AddFlightTest {
     private FlightMapper flightMapper;
     @Autowired
     private WebTestClient webClient;
-    @Value("${operator.name}")
-    private String operator;
+
+    private String operator = "WizzAir";
     String url = "/api/v1.0/flights";
 
     @Test

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27020:27017" # Exposing MongoDB on port 27020 on the host
+    volumes:
+      - ./volumes/operator_service:/data/db
+
+  operator_service_wizzair:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator_service_wizzair
+    ports:
+      - "8087:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+      OPERATOR_NAME: WizzAir
+
+  operator_service_lufthansa:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator_service_lufthansa
+    ports:
+      - "8088:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+      OPERATOR_NAME: Lufthansa
+
+volumes:
+  db:
