@@ -1,5 +1,6 @@
 package com.example.BookingServiceUpdated.service;
 
+import com.example.BookingServiceUpdated.kafka.KafkaProducerService;
 import com.example.BookingServiceUpdated.mapper.BookingMapper;
 import com.example.BookingServiceUpdated.model.Booking;
 import com.example.BookingServiceUpdated.repository.BookingRepository;
@@ -24,11 +25,14 @@ public class BookingService {
 
     private FlightService flightService;
 
+    private KafkaProducerService kafkaProducerService;
+
     @Autowired
-    public BookingService(BookingRepository bookingRepository, BookingMapper bookingMapper, FlightService flightService) {
+    public BookingService(BookingRepository bookingRepository, BookingMapper bookingMapper, FlightService flightService, KafkaProducerService kafkaProducerService) {
         this.bookingRepository = bookingRepository;
         this.bookingMapper = bookingMapper;
         this.flightService = flightService;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     @Transactional
@@ -38,7 +42,8 @@ public class BookingService {
         booking = bookingRepository.save(booking);
         bookingDTO.setId(booking.getId());
 
-        flightService.decrementSeatsAvailable(bookingDTO.getFlightId(), bookingDTO.getNumberOfSeats());
+        //flightService.decrementSeatsAvailable(bookingDTO.getFlightId(), bookingDTO.getNumberOfSeats());
+        kafkaProducerService.sendMessage(bookingDTO);
         return bookingDTO;
     }
 
@@ -60,7 +65,7 @@ public class BookingService {
         // Update the booking entity's fields with values from the bookingDTO
         bookingToUpdate.setFlightId(bookingDTO.getFlightId());
         bookingToUpdate.setUserName(bookingDTO.getUserName());
-        bookingToUpdate.setBookingDate(bookingDTO.getBookingDate());
+        //bookingToUpdate.setBookingDate(bookingDTO.getBookingDate());
         bookingToUpdate.setPrice(bookingDTO.getPrice());
         bookingToUpdate.setNumberOfSeats(bookingDTO.getNumberOfSeats());
 

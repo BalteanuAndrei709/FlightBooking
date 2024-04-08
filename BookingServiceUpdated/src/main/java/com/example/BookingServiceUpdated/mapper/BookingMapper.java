@@ -19,7 +19,7 @@ public class BookingMapper {
         bookingDTO.setId(booking.getId());
         bookingDTO.setFlightId(booking.getFlightId());
         bookingDTO.setUserName(booking.getUserName());
-        bookingDTO.setBookingDate(booking.getBookingDate());
+        //bookingDTO.setBookingDate(booking.getBookingDate());
         bookingDTO.setPrice(booking.getPrice());
         bookingDTO.setNumberOfSeats(booking.getNumberOfSeats());
 
@@ -35,10 +35,10 @@ public class BookingMapper {
         Booking booking = new Booking();
         booking.setFlightId(bookingDTO.getFlightId());
         booking.setUserName(bookingDTO.getUserName());
-        booking.setBookingDate(bookingDTO.getBookingDate());
+        //booking.setBookingDate(bookingDTO.getBookingDate());
         booking.setPrice(bookingDTO.getPrice());
         booking.setNumberOfSeats(bookingDTO.getNumberOfSeats());
-        booking.setBookingStatus(BookingStatus.PENDING);
+        //booking.setBookingStatus(BookingStatus.PENDING);
 
         return booking;
     }

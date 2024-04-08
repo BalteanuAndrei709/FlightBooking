@@ -1,4 +1,4 @@
-package com.BookingServiceUpdated.dto;
+package com.adminservice.dto;
 
 import java.time.LocalDate;
 
@@ -7,30 +7,18 @@ public class BookingDTO {
     private Integer id;
     private Integer flightId;
     private String userName;
-    //private LocalDate bookingDate;
+    private LocalDate bookingDate;
     private Double price;
     private Integer numberOfSeats;
 
     // Constructors
     public BookingDTO() {}
 
-//    @Override
-//    public String toString() {
-//        return "BookingDTO{" +
-//                "id=" + id +
-//                ", flightId=" + flightId +
-//                ", userName='" + userName + '\'' +
-//                ", bookingDate=" + bookingDate +
-//                ", price=" + price +
-//                ", numberOfSeats=" + numberOfSeats +
-//                '}';
-//    }
-
     public BookingDTO(Integer id, Integer flightId, String userName, LocalDate bookingDate, Double price, Integer numberOfSeats) {
         this.id = id;
         this.flightId = flightId;
         this.userName = userName;
-        //this.bookingDate = bookingDate;
+        this.bookingDate = bookingDate;
         this.price = price;
         this.numberOfSeats = numberOfSeats;
     }
@@ -60,13 +48,13 @@ public class BookingDTO {
         this.userName = userName;
     }
 
-//    public LocalDate getBookingDate() {
-//        return bookingDate;
-//    }
-//
-//    public void setBookingDate(LocalDate bookingDate) {
-//        this.bookingDate = bookingDate;
-//    }
+    public LocalDate getBookingDate() {
+        return bookingDate;
+    }
+
+    public void setBookingDate(LocalDate bookingDate) {
+        this.bookingDate = bookingDate;
+    }
 
     public Double getPrice() {
         return price;

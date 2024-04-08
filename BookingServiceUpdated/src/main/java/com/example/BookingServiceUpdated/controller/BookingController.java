@@ -27,9 +27,9 @@ public class BookingController {
     @PostMapping()
     public ResponseEntity<String> addBooking(@RequestBody BookingDTO bookingDTO) {
         BookingDTO createdBooking = bookingService.createBooking(bookingDTO);
-        LocalDate bookingDate = createdBooking.getBookingDate();
+        //LocalDate bookingDate = createdBooking.getBookingDate();
         String userName = bookingDTO.getUserName();
-        String responseMessage = String.format("Congratulations! Flight booked for %s under name: %s", bookingDate, userName);
+        String responseMessage = String.format("Congratulations! Flight booked for under name: %s", userName);
 
         return new ResponseEntity<>(responseMessage, HttpStatus.CREATED);
     }
