@@ -120,10 +120,10 @@ public class PayPalService {
         return paymentMono;
     }
 
-    public Mono<CompletedOrder> completePayment(String token) {
+    public Mono<CompletedOrder> completePayment(String token, String iban) {
 
         OrdersCaptureRequest ordersCaptureRequest = new OrdersCaptureRequest(token);
-        Mono<BusinessPlatform> monoBusiness = businessService.findByIban("RO86TRM");
+        Mono<BusinessPlatform> monoBusiness = businessService.findByIban(iban);
 
         Mono<CompletedOrder> completedOrderMono = monoBusiness.flatMap(event -> {
 
@@ -164,10 +164,14 @@ public class PayPalService {
         return completedOrderMono;
     }
 
-    public Mono<GetOrder> getOrder(String orderId) {
+    /**
+     * This method will return only informations for a payment that has been completed, otherwise will throw
+     * an error.
+     */
+    public Mono<GetOrder> getOrder(String orderId, String iban) {
 
         OrdersGetRequest ordersGetRequest = new OrdersGetRequest(orderId);
-        Mono<BusinessPlatform> monoBusiness = businessService.findByIban("RO86TRM");
+        Mono<BusinessPlatform> monoBusiness = businessService.findByIban(iban);
 
         Mono<GetOrder> orderMono = monoBusiness.flatMap(event -> {
 

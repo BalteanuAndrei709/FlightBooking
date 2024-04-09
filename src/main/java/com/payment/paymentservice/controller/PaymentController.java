@@ -27,12 +27,14 @@ public class PaymentController {
     }
 
     @PostMapping(value = "/capture")
-    public Mono<CompletedOrder> completePayment(@RequestParam("token") String token) {
-        return payPalService.completePayment(token);
+    public Mono<CompletedOrder> completePayment(@RequestParam("token") String token,
+                                                @RequestParam(name = "iban") String iban) {
+        return payPalService.completePayment(token, iban);
     }
 
     @GetMapping(value = "/get")
-    public Mono<GetOrder> getPayment(@RequestParam("token") String token) {
-        return payPalService.getOrder(token);
+    public Mono<GetOrder> getPayment(@RequestParam("token") String token,
+                                     @RequestParam(name = "iban") String iban) {
+        return payPalService.getOrder(token, iban);
     }
 }
