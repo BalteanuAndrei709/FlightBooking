@@ -30,8 +30,8 @@ public class PaymentController {
         return payPalService.completePayment(token);
     }
 
-    /*@GetMapping(value = "/get")
-    public GetOrder getPayment(@RequestParam("token") String token) {
+    @GetMapping(value = "/get")
+    public Mono<GetOrder> getPayment(@RequestParam("token") String token) {
         return payPalService.getOrder(token);
-    }*/
+    }
 }

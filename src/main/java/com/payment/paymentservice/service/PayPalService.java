@@ -164,26 +164,35 @@ public class PayPalService {
         return completedOrderMono;
     }
 
-    /*public GetOrder getOrder(String orderId) {
+    public Mono<GetOrder> getOrder(String orderId) {
+
         OrdersGetRequest ordersGetRequest = new OrdersGetRequest(orderId);
+        Mono<BusinessPlatform> monoBusiness = businessService.findByIban("RO86TRM");
 
-        try {
-            HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersGetRequest);
-            Order order = httpResponse.result();
-            GetOrder getOrderObj = new GetOrder();
-            getOrderObj.setPayee(order.purchaseUnits().get(0).payee());
-            getOrderObj.setPayer(order.payer());
+        Mono<GetOrder> orderMono = monoBusiness.flatMap(event -> {
 
-            getOrderObj.setPayerId(getOrderObj.getPayer().payerId());
-            getOrderObj.setPayerEmail(getOrderObj.getPayer().email());
+            PayPalEnvironment environment = new PayPalEnvironment.Sandbox(event.getClientId(), event.getClientSecret());
+            PayPalHttpClient payPalHttpClient = new PayPalHttpClient(environment);
 
-            getOrderObj.setPayeeId(getOrderObj.getPayee().merchantId());
-            getOrderObj.setPayeeEmail(getOrderObj.getPayee().email());
+            try {
+                HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersGetRequest);
+                Order order = httpResponse.result();
+                GetOrder getOrderObj = new GetOrder();
+                getOrderObj.setPayee(order.purchaseUnits().get(0).payee());
+                getOrderObj.setPayer(order.payer());
 
-            return getOrderObj;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
+                getOrderObj.setPayerId(getOrderObj.getPayer().payerId());
+                getOrderObj.setPayerEmail(getOrderObj.getPayer().email());
+
+                getOrderObj.setPayeeId(getOrderObj.getPayee().merchantId());
+                getOrderObj.setPayeeEmail(getOrderObj.getPayee().email());
+
+                return Mono.just(getOrderObj);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return orderMono;
+    }
 
 }
