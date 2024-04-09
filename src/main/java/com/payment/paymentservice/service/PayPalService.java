@@ -34,7 +34,7 @@ public class PayPalService {
 
     }
 
-    public Mono<PaymentOrder> createPayment(Double payAmount) {
+    public Mono<PaymentOrder> createPayment(Double payAmount, String iban) {
 
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
@@ -79,7 +79,7 @@ public class PayPalService {
         orderRequest.applicationContext(applicationContext);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
 
-        Mono<BusinessPlatform> mono = businessService.findByIban("RO86TRM");
+        Mono<BusinessPlatform> mono = businessService.findByIban(iban);
         // aici se poate baga o verificare daca in mono avem ceva
 
         Mono<PaymentOrder> paymentMono = mono

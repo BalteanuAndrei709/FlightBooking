@@ -21,8 +21,9 @@ public class PaymentController {
     }
 
     @PostMapping("/init")
-    public Mono<PaymentOrder> createPayment(@RequestParam(name = "sum") Double sum) {
-        return payPalService.createPayment(sum);
+    public Mono<PaymentOrder> createPayment(@RequestParam(name = "sum") Double sum,
+                                            @RequestParam(name = "iban") String iban) {
+        return payPalService.createPayment(sum, iban);
     }
 
     @PostMapping(value = "/capture")
