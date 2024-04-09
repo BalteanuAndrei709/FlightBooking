@@ -6,6 +6,7 @@ import com.payment.paymentservice.model.PaymentOrder;
 import com.payment.paymentservice.service.PayPalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 
 @RestController
@@ -20,17 +21,17 @@ public class PaymentController {
     }
 
     @PostMapping("/init")
-    public PaymentOrder createPayment(@RequestParam(name = "sum") Double sum) {
+    public Mono<PaymentOrder> createPayment(@RequestParam(name = "sum") Double sum) {
         return payPalService.createPayment(sum);
     }
 
     @PostMapping(value = "/capture")
-    public CompletedOrder completePayment(@RequestParam("token") String token) {
+    public Mono<CompletedOrder> completePayment(@RequestParam("token") String token) {
         return payPalService.completePayment(token);
     }
 
-    @GetMapping(value = "/get")
+    /*@GetMapping(value = "/get")
     public GetOrder getPayment(@RequestParam("token") String token) {
         return payPalService.getOrder(token);
-    }
+    }*/
 }

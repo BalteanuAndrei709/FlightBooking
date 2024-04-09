@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Represents the order that has been created
  */
-public class PaymentOrder implements Serializable {
+public class PaymentOrder {
 
     private String status;
     private String payId;
@@ -35,7 +35,8 @@ public class PaymentOrder implements Serializable {
         this.redirectUrl = redirectUrl;
     }
 
-    public PaymentOrder() {}
+    public PaymentOrder() {
+    }
 
     public PaymentOrder(String status, String payId, String redirectUrl) {
         this.status = status;

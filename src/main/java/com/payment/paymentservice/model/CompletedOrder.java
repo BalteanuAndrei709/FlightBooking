@@ -6,7 +6,7 @@ import java.io.Serializable;
  * This model is used to represent the order that was captured.
  * It uses the payId generated after creating a new payment to identify it inside PayPal.
  */
-public class CompletedOrder implements Serializable {
+public class CompletedOrder {
     private String status;
     private String payId;
 
@@ -37,4 +37,5 @@ public class CompletedOrder implements Serializable {
     public CompletedOrder(String status) {
         this.status = status;
     }
+
 }

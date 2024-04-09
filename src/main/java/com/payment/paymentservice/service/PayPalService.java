@@ -1,9 +1,7 @@
 package com.payment.paymentservice.service;
 
-import com.payment.paymentservice.model.CompletedOrder;
-import com.payment.paymentservice.model.GetOrder;
-import com.payment.paymentservice.model.OrderStatus;
-import com.payment.paymentservice.model.PaymentOrder;
+import com.payment.paymentservice.model.*;
+import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
@@ -19,28 +17,24 @@ import java.util.NoSuchElementException;
 @Service
 public class PayPalService {
 
-    private final PayPalHttpClient payPalHttpClient;
-
     private final String returnUrl;
-
     private final String cancelUrl;
-
     private final OrderService orderService;
-
+    private final BusinessPlatformService businessService;
 
     @Autowired
-    public PayPalService(PayPalHttpClient payPalHttpClient,
-                         @Value("${return.url}") String returnUrl,
+    public PayPalService(@Value("${return.url}") String returnUrl,
                          @Value("${cancel.url}") String cancelUrl,
-                         OrderService orderService) {
-        this.payPalHttpClient = payPalHttpClient;
+                         OrderService orderService,
+                         BusinessPlatformService businessService) {
         this.returnUrl = returnUrl;
         this.cancelUrl = cancelUrl;
         this.orderService = orderService;
+        this.businessService = businessService;
 
     }
 
-    public PaymentOrder createPayment(Double payAmount) {
+    public Mono<PaymentOrder> createPayment(Double payAmount) {
 
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
@@ -85,69 +79,92 @@ public class PayPalService {
         orderRequest.applicationContext(applicationContext);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
 
-        try {
-            HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
-            Order order = orderHttpResponse.result();
+        Mono<BusinessPlatform> mono = businessService.findByIban("RO86TRM");
+        // aici se poate baga o verificare daca in mono avem ceva
 
+        Mono<PaymentOrder> paymentMono = mono
+                .flatMap(event -> {
 
-            /**
-             * The payer (the customer) can be linked with the iban or something from the booking topic (kafka) or database.
-             */
-            String redirectUrl = order.links().stream()
-                    .filter(link -> link.rel().equals("approve"))
-                    .findFirst()
-                    .orElseThrow(NoSuchElementException::new)
-                    .href();
+                    PayPalEnvironment environment = new PayPalEnvironment.Sandbox(event.getClientId(), event.getClientSecret());
+                    PayPalHttpClient payPalHttpClient = new PayPalHttpClient(environment);
+                    try {
+                        HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
+                        Order order = orderHttpResponse.result();
 
-            //System.out.println(order.status());
+                        /**
+                         * The payer (the customer) can be linked with the iban or something from the booking topic (kafka) or database.
+                         */
+                        String redirectUrl = order.links().stream()
+                                .filter(link -> link.rel().equals("approve"))
+                                .findFirst()
+                                .orElseThrow(NoSuchElementException::new)
+                                .href();
 
-            OrderStatus orderStatus = new OrderStatus();
-            orderStatus.setOrderId(order.id());
-            orderStatus.setStatus("INITIATED");
-            orderService.addOrder(orderStatus).subscribe();
+                        //System.out.println(order.status());
 
+                        OrderStatus orderStatus = new OrderStatus();
+                        orderStatus.setOrderId(order.id());
+                        orderStatus.setStatus("INITIATED");
+                        orderService.addOrder(orderStatus).subscribe();
 
-            return new PaymentOrder("success", order.id(), redirectUrl);
+                        PaymentOrder paymentOrder = new PaymentOrder("success", order.id(), redirectUrl);
+                        return Mono.just(paymentOrder);
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            PaymentOrder paymentOrder = new PaymentOrder();
-            paymentOrder.setStatus("Error");
-            return paymentOrder;
-        }
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                        PaymentOrder paymentOrder = new PaymentOrder();
+                        paymentOrder.setStatus("Error");
+                        return Mono.just(paymentOrder);
+                    }
+                });
+        return paymentMono;
     }
 
-    public CompletedOrder completePayment(String token) {
+    public Mono<CompletedOrder> completePayment(String token) {
+
         OrdersCaptureRequest ordersCaptureRequest = new OrdersCaptureRequest(token);
-        Order order = new Order();
-        try {
-            HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCaptureRequest);
-            order = httpResponse.result();
-            System.out.println(order.status());
+        Mono<BusinessPlatform> monoBusiness = businessService.findByIban("RO86TRM");
 
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        if (order.status() != null) { // in cazul asta va avea mereu COMPLETED daca plata a fost efectuata cu succes
-            final String orderId = order.id();
-            Mono<OrderStatus> mono = orderService.findByOrderId(orderId);
+        Mono<CompletedOrder> completedOrderMono = monoBusiness.flatMap(event -> {
 
-            mono.subscribe(e -> {
-                e.setStatus("SUCCESS");
-                orderService.updateOrder(e, orderId).subscribe();
-            });
-            return new CompletedOrder(order.status(), token);
-        } else {
-            Mono<OrderStatus> mono = orderService.findByOrderId(token);
-            mono.subscribe(e -> {
-                e.setStatus("CANCELED");
-                orderService.updateOrder(e, e.getOrderId()).subscribe();
-            });
-            return new CompletedOrder("canceled", token);
-        }
+            PayPalEnvironment environment = new PayPalEnvironment.Sandbox(event.getClientId(), event.getClientSecret());
+            PayPalHttpClient payPalHttpClient = new PayPalHttpClient(environment);
+            Order order = new Order();
+
+            try {
+                HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCaptureRequest);
+                order = httpResponse.result();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+
+            if (order.status() != null) { // in cazul asta va avea mereu COMPLETED daca plata a fost efectuata cu succes
+                final String orderId = order.id();
+                Mono<OrderStatus> mono = orderService.findByOrderId(orderId);
+                System.out.println(order.status());
+
+                mono.subscribe(e -> {
+                    e.setStatus("SUCCESS");
+                    orderService.updateOrder(e, orderId).subscribe();
+                });
+                return Mono.just(new CompletedOrder(order.status(), token));
+            } else {
+                System.out.println(order.status());
+                Mono<OrderStatus> mono = orderService.findByOrderId(token);
+
+                mono.subscribe(e -> {
+                    e.setStatus("CANCELED");
+                    orderService.updateOrder(e, e.getOrderId()).subscribe();
+                });
+                return Mono.just(new CompletedOrder("canceled", token));
+            }
+
+        });
+
+        return completedOrderMono;
     }
 
-    public GetOrder getOrder(String orderId) {
+    /*public GetOrder getOrder(String orderId) {
         OrdersGetRequest ordersGetRequest = new OrdersGetRequest(orderId);
 
         try {
@@ -167,6 +184,6 @@ public class PayPalService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
+    }*/
 
 }
