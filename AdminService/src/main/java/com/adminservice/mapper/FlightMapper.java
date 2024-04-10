@@ -1,6 +1,7 @@
 package com.adminservice.mapper;
 
 import com.adminservice.dto.FlightDTO;
+import com.adminservice.dto.RegisterFlightDTO;
 import com.adminservice.model.Flight;
 import org.springframework.stereotype.Component;
 
@@ -28,16 +29,22 @@ public class FlightMapper {
         }
     }
 
-    public Flight toEntity(FlightDTO flightDTO) {
+    /**
+     * Method that will map a DTO for flight to an Flight entity.
+     * @param flightDTO
+     * The details of the flight.
+     * @return
+     * An entity of Flight, with the information received from the DTO.
+     */
+    public Flight toEntity(RegisterFlightDTO flightDTO) {
         if (flightDTO == null) {
             return null;
         } else {
             Flight flight = new Flight();
-            flight.setId(flightDTO.getId());
             flight.setLeaving(flightDTO.getLeaving());
             flight.setDestination(flightDTO.getDestination());
             flight.setNumberSeatsTotal(flightDTO.getNumberSeatsTotal());
-            flight.setNumberSeatsAvailable(flightDTO.getNumberSeatsAvailable());
+            flight.setNumberSeatsAvailable(flightDTO.getNumberSeatsTotal());
             flight.setDateOfDeparture(flightDTO.getDateOfDeparture());
             flight.setTimeOfDeparture(flightDTO.getTimeOfDeparture());
             return flight;
@@ -54,16 +61,4 @@ public class FlightMapper {
         }
         return flightDTOS;
     }
-
-    public List<Flight> dtosToEntities(List<FlightDTO> dtoList) {
-        if (dtoList.isEmpty())
-            return Collections.emptyList();
-
-        List<Flight> flightList = new ArrayList<>();
-        for (FlightDTO dto : dtoList) {
-            flightList.add(toEntity(dto));
-        }
-        return flightList;
-    }
-
 }

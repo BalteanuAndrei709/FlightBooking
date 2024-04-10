@@ -1,10 +1,10 @@
 package com.adminservice.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
 /**
  * Entity class for a flight.
@@ -99,15 +99,27 @@ public class Flight {
     public Flight() {
     }
 
-    public Flight(Integer id, Operator operator, String leaving, String destination,
-                  Integer numberSeatsTotal, Integer numberSeatsAvailable, LocalDate dateOfDeparture, LocalTime timeOfDeparture) {
-        this.id = id;
+    public Flight(Operator operator, String leaving, String destination,
+                  Integer numberSeatsTotal, LocalDate dateOfDeparture, LocalTime timeOfDeparture) {
         this.operator = operator;
         this.leaving = leaving;
         this.destination = destination;
         this.numberSeatsTotal = numberSeatsTotal;
-        this.numberSeatsAvailable = numberSeatsAvailable;
+        this.numberSeatsAvailable = numberSeatsTotal;
         this.dateOfDeparture = dateOfDeparture;
         this.timeOfDeparture = timeOfDeparture;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Flight flight = (Flight) o;
+        return Objects.equals(id, flight.id) && Objects.equals(operator, flight.operator) && Objects.equals(leaving, flight.leaving) && Objects.equals(destination, flight.destination) && Objects.equals(numberSeatsTotal, flight.numberSeatsTotal) && Objects.equals(numberSeatsAvailable, flight.numberSeatsAvailable) && Objects.equals(dateOfDeparture, flight.dateOfDeparture) && Objects.equals(timeOfDeparture, flight.timeOfDeparture);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, operator, leaving, destination, numberSeatsTotal, numberSeatsAvailable, dateOfDeparture, timeOfDeparture);
     }
 }
