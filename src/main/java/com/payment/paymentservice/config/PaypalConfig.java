@@ -3,35 +3,26 @@ package com.payment.paymentservice.config;
 import com.payment.paymentservice.repository.OrderRepository;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Properties;
+
 @Configuration
 public class PaypalConfig {
-
-    /*@Value("${paypal.client.id}")
-    private String clientId;
-    @Value("${paypal.client.secret}")
-    private String clientSecret;
-    @Value("${paypal.mode}")
-    private String mode;
-
-    *//**
-     * Creates the sandbox environment identified by our clientId and clientSecret
-     *//*
     @Bean
-    public PayPalEnvironment payPalEnvironment() {
-        return new PayPalEnvironment.Sandbox(clientId, clientSecret);
+    public Properties properties() {
+        Properties properties = new Properties();
+        properties.setProperty("bootstrap.servers", "advanced-beetle-11713-eu2-kafka.upstash.io:9092");
+        properties.setProperty("sasl.mechanism", "SCRAM-SHA-256");
+        properties.setProperty("security.protocol", "SASL_SSL");
+        properties.setProperty("sasl.jaas.config", "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"YWR2YW5jZWQtYmVldGxlLTExNzEzJJWiNPRnLrK7heJN2nqlYP6aBD1NtV1K_Lg\" password=\"ZDUyNGM4MTktNGIzZC00ODllLTk0ZWQtNTBiNjAyMTdiNTUx\";");
+        properties.setProperty("key.serializer", StringSerializer.class.getName());
+        properties.setProperty("value.serializer", StringSerializer.class.getName());
+        return properties;
     }
-
-    *//**
-     * @param environment The PayPalHttpClient is used to create order requests to the PayPal PSP (payment service provider)
-     *//*
-    @Bean
-    public PayPalHttpClient payPalHttpClient(PayPalEnvironment environment) {
-        return new PayPalHttpClient(environment);
-    }*/
 
 }
