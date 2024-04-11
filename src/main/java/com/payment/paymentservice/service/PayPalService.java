@@ -1,5 +1,6 @@
 package com.payment.paymentservice.service;
 
+import com.payment.paymentservice.exception.OrderNotPayedException;
 import com.payment.paymentservice.model.*;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
@@ -21,6 +22,7 @@ public class PayPalService {
     private final String cancelUrl;
     private final OrderService orderService;
     private final BusinessPlatformService businessService;
+    private final long AVAILABLE_TIME = 10000 * 6; // 1 minutes
 
     @Autowired
     public PayPalService(@Value("${return.url}") String returnUrl,
@@ -63,7 +65,7 @@ public class PayPalService {
         Item item = new Item();
         item.category("DIGITAL_GOODS");
         item.quantity("1");
-        item.name("Flight");
+        item.name("Flight from X to Y");
         item.description("Flight");
         item.unitAmount(money);
 
@@ -105,6 +107,9 @@ public class PayPalService {
                         OrderStatus orderStatus = new OrderStatus();
                         orderStatus.setOrderId(order.id());
                         orderStatus.setStatus("INITIATED");
+                        orderStatus.setCreationTime(System.currentTimeMillis());
+                        orderStatus.setExpirationTime(orderStatus.getCreationTime() + AVAILABLE_TIME);
+
                         orderService.addOrder(orderStatus).subscribe();
 
                         PaymentOrder paymentOrder = new PaymentOrder("success", order.id(), redirectUrl);
@@ -165,7 +170,7 @@ public class PayPalService {
     }
 
     /**
-     * This method will return only informations for a payment that has been completed, otherwise will throw
+     * This method will return only information for a payment that has been completed, otherwise will throw
      * an error.
      */
     public Mono<GetOrder> getOrder(String orderId, String iban) {
@@ -197,6 +202,40 @@ public class PayPalService {
             }
         });
         return orderMono;
+    }
+
+    public Mono<CompletedOrder> captureOrder(String token, String iban) {
+
+        OrdersCaptureRequest ordersCaptureRequest = new OrdersCaptureRequest(token);
+        Mono<BusinessPlatform> monoBusiness = businessService.findByIban(iban);
+        Mono<OrderStatus> orderStatusMono = orderService.findByOrderId(token);
+        long callTime = System.currentTimeMillis();
+
+        Mono<CompletedOrder> resultMono = orderStatusMono.flatMap(orderStatus -> {
+
+            if (callTime > orderStatus.getExpirationTime() && !orderStatus.getStatus().equals("SUCCESS")) {
+                orderStatus.setStatus("CANCELED");
+                orderService.updateOrder(orderStatus, token).subscribe();
+                return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getId()));
+            } else {
+                monoBusiness.subscribe(event -> {
+
+                    PayPalEnvironment environment = new PayPalEnvironment.Sandbox(event.getClientId(), event.getClientSecret());
+                    PayPalHttpClient payPalHttpClient = new PayPalHttpClient(environment);
+                    try {
+                        HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCaptureRequest);
+                        Order order = httpResponse.result();
+                        orderStatus.setStatus("SUCCESS");
+                        orderService.updateOrder(orderStatus, order.id()).subscribe();
+                    } catch (IOException e) {
+                        throw new OrderNotPayedException("Payment with id " + token + " was not paid by following the given link");
+                    }
+                });
+                return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getId()));
+            }
+        });
+
+        return resultMono;
     }
 
 }

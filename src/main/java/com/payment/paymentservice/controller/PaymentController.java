@@ -37,4 +37,10 @@ public class PaymentController {
                                      @RequestParam(name = "iban") String iban) {
         return payPalService.getOrder(token, iban);
     }
+
+    @PostMapping("/time")
+    public Mono<CompletedOrder> captureOrder(@RequestParam("token") String token,
+                                             @RequestParam(name = "iban") String iban) {
+        return payPalService.captureOrder(token, iban);
+    }
 }
