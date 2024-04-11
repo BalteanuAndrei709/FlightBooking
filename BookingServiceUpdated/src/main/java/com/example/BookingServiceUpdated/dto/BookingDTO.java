@@ -1,4 +1,6 @@
-package com.BookingServiceUpdated.dto;
+package com.example.BookingServiceUpdated.dto;
+
+import com.example.BookingServiceUpdated.model.BookingStatus;
 
 import java.time.LocalDate;
 
@@ -10,7 +12,7 @@ public class BookingDTO {
     //private LocalDate bookingDate;
     private Double price;
     private Integer numberOfSeats;
-
+    private BookingStatus bookingStatus;
     // Constructors
     public BookingDTO() {}
 
@@ -66,6 +68,14 @@ public class BookingDTO {
 //
 //    public void setBookingDate(LocalDate bookingDate) {
 //        this.bookingDate = bookingDate;
+
+    public BookingStatus getBookingStatus() {
+        return bookingStatus;
+    }
+
+    public void setBookingStatus(BookingStatus bookingStatus) {
+        this.bookingStatus = bookingStatus;
+    }
 //    }
 
     public Double getPrice() {

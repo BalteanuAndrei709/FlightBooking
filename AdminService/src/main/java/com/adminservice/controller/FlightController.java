@@ -36,6 +36,7 @@ public class FlightController {
     @GetMapping("/{id}")
     public Optional<FlightDTO> getFlightById(@PathVariable(name = "id")
                                              Integer id) {
+
         return flightService.getFlight(id);
     }
 

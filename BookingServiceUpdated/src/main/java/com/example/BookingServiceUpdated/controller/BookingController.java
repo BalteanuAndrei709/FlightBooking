@@ -1,7 +1,7 @@
 package com.example.BookingServiceUpdated.controller;
 
 
-import com.BookingServiceUpdated.dto.BookingDTO;
+import com.example.BookingServiceUpdated.dto.BookingDTO;
 import com.example.BookingServiceUpdated.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

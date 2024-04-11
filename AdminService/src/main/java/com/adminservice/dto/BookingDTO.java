@@ -1,5 +1,7 @@
 package com.adminservice.dto;
 
+import com.adminservice.model.BookingStatus;
+
 import java.time.LocalDate;
 
 public class BookingDTO {
@@ -10,17 +12,19 @@ public class BookingDTO {
     private LocalDate bookingDate;
     private Double price;
     private Integer numberOfSeats;
+    private BookingStatus bookingStatus;
 
     // Constructors
     public BookingDTO() {}
 
-    public BookingDTO(Integer id, Integer flightId, String userName, LocalDate bookingDate, Double price, Integer numberOfSeats) {
+    public BookingDTO(Integer id, Integer flightId, String userName, LocalDate bookingDate, Double price, Integer numberOfSeats, BookingStatus bookingStatus) {
         this.id = id;
         this.flightId = flightId;
         this.userName = userName;
         this.bookingDate = bookingDate;
         this.price = price;
         this.numberOfSeats = numberOfSeats;
+        this.bookingStatus = bookingStatus;
     }
 
     // Getters and Setters
@@ -46,6 +50,14 @@ public class BookingDTO {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public BookingStatus getBookingStatus() {
+        return bookingStatus;
+    }
+
+    public void setBookingStatus(BookingStatus bookingStatus) {
+        this.bookingStatus = bookingStatus;
     }
 
     public LocalDate getBookingDate() {

@@ -27,8 +27,8 @@ public class Booking {
     @Column(nullable = false)
     private Double price;
 
-//    @Column(nullable = false)
-//    private BookingStatus bookingStatus;
+    @Column()
+    private BookingStatus bookingStatus;
 
 
 
@@ -81,13 +81,13 @@ public class Booking {
         this.numberOfSeats = numberOfSeats;
     }
 
-//    public BookingStatus getBookingStatus() {
-//        return bookingStatus;
-//    }
-//
-//    public void setBookingStatus(BookingStatus bookingStatus) {
-//        this.bookingStatus = bookingStatus;
-//    }
+    public BookingStatus getBookingStatus() {
+        return bookingStatus;
+    }
+
+    public void setBookingStatus(BookingStatus bookingStatus) {
+        this.bookingStatus = bookingStatus;
+    }
 
     // Getters and Setters
 }
