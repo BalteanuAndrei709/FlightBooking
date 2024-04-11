@@ -1,15 +1,15 @@
 package com.adminservice.dto;
 
-public class RegisterOperatorDto {
+public class CompressedOperatorDto {
 
     private String name;
     private String iban;
     private String apiSearch;
 
-    public RegisterOperatorDto() {
+    public CompressedOperatorDto() {
     }
 
-    public RegisterOperatorDto(String name, String iban, String apiSearch) {
+    public CompressedOperatorDto(String name, String iban, String apiSearch) {
         this.name = name;
         this.iban = iban;
         this.apiSearch = apiSearch;

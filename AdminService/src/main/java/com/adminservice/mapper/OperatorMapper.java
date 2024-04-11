@@ -1,10 +1,9 @@
 package com.adminservice.mapper;
 
 import com.adminservice.dto.OperatorDTO;
-import com.adminservice.dto.RegisterOperatorDto;
+import com.adminservice.dto.CompressedOperatorDto;
 import com.adminservice.model.Operator;
 import org.springframework.stereotype.Component;
-import java.util.ArrayList;
 
 @Component
 public class OperatorMapper {
@@ -37,20 +36,21 @@ public class OperatorMapper {
     }
 
     /**
-     * Method that maps an OperatorDTO to an entity of type Operator.
-     * @param registerOperatorDto
-     * The DTO that contains the iban, the external api for searching and the name of the operator
+     * Method that maps an Operator to an OperatorDto.
+     * @param operator
+     * The entity of type Operator.
      * @return
-     * An entity of type Operator, with the associated given information. The id is not set and
-     * the flights are initialized with an empty array list.
+     * A CompressedOperatorDto
      */
-    public Operator fromRegisterDto(RegisterOperatorDto registerOperatorDto) {
-        return registerOperatorDto == null ?
-                null :
-                new Operator(
-                        new ArrayList<>(),
-                        registerOperatorDto.getName(),
-                        registerOperatorDto.getIban(),
-                        registerOperatorDto.getApiSearch());
+    public CompressedOperatorDto toCompressedDto(Operator operator) {
+        if (operator == null)
+            return null;
+        else {
+            CompressedOperatorDto compressedOperatorDto = new CompressedOperatorDto();
+            compressedOperatorDto.setIban(operator.getIban());
+            compressedOperatorDto.setName(operator.getName());
+            compressedOperatorDto.setApiSearch(operator.getApiSearch());
+            return compressedOperatorDto;
+        }
     }
 }

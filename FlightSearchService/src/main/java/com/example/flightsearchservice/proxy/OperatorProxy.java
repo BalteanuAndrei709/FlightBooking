@@ -1,47 +1,25 @@
 package com.example.flightsearchservice.proxy;
 
+import com.example.flightsearchservice.dto.OperatorDTO;
 import com.example.flightsearchservice.dto.SearchFlightResponseDto;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
-import java.time.LocalDate;
-import java.util.Collections;
+import reactor.netty.http.client.HttpClient;
+
+import java.util.List;
 
 @Component
 public class OperatorProxy {
 
-    private final WebClient webClientWizzAir;
-    private final WebClient webClientLufthansa;
-
-    public OperatorProxy(WebClient webClientWizzAir, WebClient webClientLufthansa) {
-        this.webClientWizzAir = webClientWizzAir;
-        this.webClientLufthansa = webClientLufthansa;
-    }
-
-    public Flux<SearchFlightResponseDto> getAll(String leaving,
-                                                String optionalDestination,
-                                                LocalDate optionalDepartureDate,
-                                                LocalDate optionalReturnDate,
-                                                Integer pageNumber,
-                                                Integer pageSize) {
-
-        String uri = uriBuilder(leaving, optionalDestination, optionalDepartureDate, optionalReturnDate, pageNumber, pageSize);
-
-        Flux<SearchFlightResponseDto> fluxLufthansa = fluxBuilder(webClientLufthansa, uri);
-
-        Flux<SearchFlightResponseDto> fluxWizzAir = fluxBuilder(webClientWizzAir, uri);
-
-        return Flux.zip(fluxLufthansa, fluxWizzAir)
-                .flatMap(tuple -> {
-                    Flux<SearchFlightResponseDto> flux1 = Flux.fromIterable(Collections.singletonList(tuple.getT1()));
-                    Flux<SearchFlightResponseDto> flux2 = Flux.fromIterable(Collections.singletonList(tuple.getT2()));
-                    return flux1.concatWith(flux2);
-                })
-                .log();
+    public Flux<SearchFlightResponseDto> getAll(List<OperatorDTO> operators, String uri) {
+        return Flux.fromIterable(operators)
+                .flatMap(operator -> fluxBuilder(getWebClient(operator.getApiSearch()), uri))
+                .subscribeOn(Schedulers.parallel());
     }
 
     private Flux<SearchFlightResponseDto> fluxBuilder(WebClient webClient, String uri){
@@ -54,35 +32,23 @@ public class OperatorProxy {
                 .onBackpressureDrop();
     }
 
-    private String uriBuilder(String leaving,
-                              String optionalDestination,
-                              LocalDate optionalDepartureDate,
-                              LocalDate optionalReturnDate,
-                              Integer pageNumber,
-                              Integer pageSize){
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath("/" + leaving);
-
-        if (!StringUtils.isEmpty(optionalDestination)) {
-            uriBuilder.queryParam("destination", optionalDestination);
-        }
-        if (optionalDepartureDate != null) {
-            uriBuilder.queryParam("departureDate", optionalDepartureDate);
-        }
-        if (optionalReturnDate != null) {
-            uriBuilder.queryParam("returnDate", optionalReturnDate);
-        }
-        if (pageNumber != null) {
-            uriBuilder.queryParam("pageNumber", pageNumber);
-        }
-        if (pageSize != null) {
-            uriBuilder.queryParam("pageSize", pageSize);
-        }
-
-        return uriBuilder.toUriString();
-    }
-
     private Flux<SearchFlightResponseDto> handleClientException(WebClientResponseException e) {
         return Flux.error(new RuntimeException("WebClient request failed: " + e.getRawStatusCode(), e));
     }
 
+    private WebClient getWebClient(String baseUrl) {
+        ExchangeStrategies strategies = ExchangeStrategies.builder()
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // Increase max buffer size to 10 MB
+                .build();
+
+        HttpClient httpClient = HttpClient.create().wiretap(true); //requests and responses passing through the client will be logged
+        ReactorClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
+
+        return WebClient
+                .builder()
+                .clientConnector(connector)
+                .exchangeStrategies(strategies)
+                .baseUrl(baseUrl)
+                .build();
+    }
 }

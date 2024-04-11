@@ -1,7 +1,7 @@
 package com.adminservice.mapper;
 
 import com.adminservice.dto.FlightDTO;
-import com.adminservice.dto.RegisterFlightDTO;
+import com.adminservice.dto.CompressedFlightDTO;
 import com.adminservice.model.Flight;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +36,7 @@ public class FlightMapper {
      * @return
      * An entity of Flight, with the information received from the DTO.
      */
-    public Flight toEntity(RegisterFlightDTO flightDTO) {
+    public Flight toEntity(CompressedFlightDTO flightDTO) {
         if (flightDTO == null) {
             return null;
         } else {

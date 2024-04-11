@@ -1,13 +1,17 @@
 package com.adminservice.controller;
 
 import com.adminservice.dto.OperatorDTO;
-import com.adminservice.dto.RegisterOperatorDto;
+import com.adminservice.dto.CompressedOperatorDto;
 import com.adminservice.mapper.OperatorMapper;
+import com.adminservice.model.Operator;
 import com.adminservice.service.OperatorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1.0/operator")
@@ -27,14 +31,14 @@ public class OperatorController {
      * - iban -> the iban of the operator which will be used by payment service to transfer money when
      *           the user books a flight
      * - apiSearch -> the external API of the operator, where detailed flight search will be done.
-     * @param registerOperatorDto
+     * @param compressedOperatorDto
      * The DTO that contains information about the operator.
      * @return
      * In case of success, the newly created id of the operator.
      */
     @PostMapping()
-    public ResponseEntity<?> registerOperator(@RequestBody RegisterOperatorDto registerOperatorDto){
-        var operatorId = operatorService.createOperator(registerOperatorDto);
+    public ResponseEntity<?> registerOperator(@RequestBody CompressedOperatorDto compressedOperatorDto){
+        var operatorId = operatorService.createOperator(compressedOperatorDto);
         var uri = ServletUriComponentsBuilder.fromUriString("/api/v1.0/operator").path("/{operatorId}").buildAndExpand(operatorId).toUri();
         return ResponseEntity.created(uri).body("Operator registered successfully. Operator id : " + operatorId);
     }
@@ -73,7 +77,7 @@ public class OperatorController {
      * Method that will handle the HTTP request related to updating data of an operator.
      * This method will not handle the updates for flights. The PUT method from FlightController
      * should be used for this scenario.
-     * @param registerOperatorDto
+     * @param compressedOperatorDto
      * The new details of the operator.
      * @param id
      * The id of the operator for which we want to update the data.
@@ -81,9 +85,9 @@ public class OperatorController {
      * An OperatorDTO, with the updated details.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<OperatorDTO> updateOperator(@RequestBody RegisterOperatorDto registerOperatorDto,
+    public ResponseEntity<OperatorDTO> updateOperator(@RequestBody CompressedOperatorDto compressedOperatorDto,
                                                       @PathVariable Integer id){
-        var operator = operatorService.updateOperator(registerOperatorDto, id);
+        var operator = operatorService.updateOperator(compressedOperatorDto, id);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(operatorMapper.toDto(operator));
@@ -106,6 +110,35 @@ public class OperatorController {
                 ResponseEntity
                         .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("Error at deleting operator with id " + id + ".");
+    }
+
+    /**
+     * Method that will handle the HTTP request related to searching all operators
+     * who perform a certain route.
+     * @param leaving
+     * The city from which the flight starts.
+     * @param destination
+     * The city where the flight ends.
+     * @return
+     * A list of CompressedOperatorList, which hold the minimum amount information about the
+     * operators who perform a certain route.
+     */
+    @GetMapping("/routes")
+    public ResponseEntity<List<CompressedOperatorDto>> getOperatorsWhoPerformRoute(
+            @RequestParam(name = "leaving") String leaving,
+            @RequestParam(name = "destination", required = false) String destination){
+        var operators = operatorService.findOperatorsByRoute(leaving,destination);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(operators
+                        .stream()
+                        .map(operatorMapper::toCompressedDto)
+                        .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/all")
+    public List<Operator> getAllOperators(){
+        return operatorService.findAll();
     }
 
 }

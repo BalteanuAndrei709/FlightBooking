@@ -1,8 +1,7 @@
 package com.adminservice.controller;
 
 import com.adminservice.dto.FlightDTO;
-import com.adminservice.dto.RegisterFlightDTO;
-import com.adminservice.dto.RegisterOperatorDto;
+import com.adminservice.dto.CompressedFlightDTO;
 import com.adminservice.mapper.FlightMapper;
 import com.adminservice.service.FlightService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,7 @@ public class FlightController {
 
     /**
      * Method that will handle the HTTP request related to creating a new flight.
-     * @param registerFlightDTO
+     * @param compressedFlightDTO
      * The information about the new flight which the method need to create.
      * @param operatorName
      * The name of the operator which performs the flight the app needs to register.
@@ -61,9 +60,9 @@ public class FlightController {
      * A FlightDTO, which contains all the information about the newly created Flight.
      */
     @PostMapping("/{operatorName}")
-    public ResponseEntity<?> addFlight(@RequestBody RegisterFlightDTO registerFlightDTO,
+    public ResponseEntity<?> addFlight(@RequestBody CompressedFlightDTO compressedFlightDTO,
                                             @PathVariable(name = "operatorName") String operatorName) {
-        var flight = flightService.registerFlight(registerFlightDTO, operatorName);
+        var flight = flightService.registerFlight(compressedFlightDTO, operatorName);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(flightMapper.toDTO(flight));
@@ -71,7 +70,7 @@ public class FlightController {
 
     /**
      * Method that will handle the HTTP request related to updating the details of a flight.
-     * @param registerFlightDTO
+     * @param compressedFlightDTO
      * The new details of the flight.
      * @param id
      * The id of the flight which need to be updated.
@@ -79,9 +78,9 @@ public class FlightController {
      * An FlightDto object, with the updated fields.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<FlightDTO> updateFlight(@RequestBody RegisterFlightDTO registerFlightDTO,
+    public ResponseEntity<FlightDTO> updateFlight(@RequestBody CompressedFlightDTO compressedFlightDTO,
                                                 @PathVariable(name = "id") Integer id) {
-        var flight = flightService.updateFlight(registerFlightDTO, id);
+        var flight = flightService.updateFlight(compressedFlightDTO, id);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(flightMapper.toDTO(flight));

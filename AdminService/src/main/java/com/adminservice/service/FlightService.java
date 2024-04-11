@@ -1,6 +1,6 @@
 package com.adminservice.service;
 
-import com.adminservice.dto.RegisterFlightDTO;
+import com.adminservice.dto.CompressedFlightDTO;
 import com.adminservice.exception.InvalidParameterException;
 import com.adminservice.model.Flight;
 import com.adminservice.model.Operator;
@@ -55,23 +55,23 @@ public class FlightService {
      * Method that will register a new flight with the received information from DTO.
      * The method also ensures that the name of the operator actually maps to a registered
      * operator.
-     * @param registerFlightDTO
+     * @param compressedFlightDTO
      * The details of the flight which the app needs to register.
      * @param operatorName
      * The name of the operator for which the app registers the flight.
      * @return
      * The newly created Flight entity.
      */
-    public Flight registerFlight(RegisterFlightDTO registerFlightDTO,
-                               String operatorName) {
+    public Flight registerFlight(CompressedFlightDTO compressedFlightDTO,
+                                 String operatorName) {
         Operator operator = operatorService.findByName(operatorName);
         Flight flight = new Flight(
                 operator,
-                registerFlightDTO.getLeaving(),
-                registerFlightDTO.getDestination(),
-                registerFlightDTO.getNumberSeatsTotal(),
-                registerFlightDTO.getDateOfDeparture(),
-                registerFlightDTO.getTimeOfDeparture()
+                compressedFlightDTO.getLeaving(),
+                compressedFlightDTO.getDestination(),
+                compressedFlightDTO.getNumberSeatsTotal(),
+                compressedFlightDTO.getDateOfDeparture(),
+                compressedFlightDTO.getTimeOfDeparture()
         );
         flight = flightRepository.save(flight);
         return flight;
@@ -80,25 +80,25 @@ public class FlightService {
     /**
      * Method that will update the fields of the flight which has the id equal with the received
      * parameter.
-     * @param registerFlightDTO
+     * @param compressedFlightDTO
      * The new fields for the flight.
      * @param id
      * The id of the flight on which the method updates the fields.
      * @return
      * A Flight object, with the updated fields.
      */
-    public Flight updateFlight(RegisterFlightDTO registerFlightDTO, Integer id) {
+    public Flight updateFlight(CompressedFlightDTO compressedFlightDTO, Integer id) {
         var flightOptional = flightRepository.findById(id);
         if (flightOptional.isEmpty()) {
             throw new InvalidParameterException("No flight found with id " + id);
         }
         var flight = flightOptional.get();
-        flight.setDestination(registerFlightDTO.getDestination());
-        flight.setLeaving(registerFlightDTO.getLeaving());
-        flight.setNumberSeatsTotal(registerFlightDTO.getNumberSeatsTotal());
-        flight.setNumberSeatsAvailable(registerFlightDTO.getNumberSeatsTotal());
-        flight.setDateOfDeparture(registerFlightDTO.getDateOfDeparture());
-        flight.setTimeOfDeparture(registerFlightDTO.getTimeOfDeparture());
+        flight.setDestination(compressedFlightDTO.getDestination());
+        flight.setLeaving(compressedFlightDTO.getLeaving());
+        flight.setNumberSeatsTotal(compressedFlightDTO.getNumberSeatsTotal());
+        flight.setNumberSeatsAvailable(compressedFlightDTO.getNumberSeatsTotal());
+        flight.setDateOfDeparture(compressedFlightDTO.getDateOfDeparture());
+        flight.setTimeOfDeparture(compressedFlightDTO.getTimeOfDeparture());
         return flightRepository.save(flight);
     }
 

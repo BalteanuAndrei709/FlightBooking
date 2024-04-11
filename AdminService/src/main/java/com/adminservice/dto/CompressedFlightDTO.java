@@ -3,7 +3,7 @@ package com.adminservice.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class RegisterFlightDTO {
+public class CompressedFlightDTO {
 
     private String leaving;
     private String destination;
