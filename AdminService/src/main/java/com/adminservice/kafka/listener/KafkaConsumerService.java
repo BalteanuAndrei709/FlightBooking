@@ -31,7 +31,7 @@ public class KafkaConsumerService {
         try {
             BookingDTO bookingDTO = objectMapper.readValue(record.value(), BookingDTO.class);
             logger.info("Received booking: {}", bookingDTO);
-            int bookingId = bookingDTO.getId();
+            String bookingId = bookingDTO.getId();
             BookingStatusDTO bookingStatusDTO = new BookingStatusDTO();
             bookingStatusDTO.setId(bookingId);
 

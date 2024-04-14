@@ -1,42 +1,43 @@
 package com.example.BookingServiceUpdated.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "booking")
+@Document(collection = "bookings")
 public class Booking {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private String id; // MongoDB typically uses String for IDs
 
-    @Column(nullable = false)
+    @Field("user_name")
     private String userName;
 
-    @Column(nullable = false)
+    @Field("flight_id")
     private Integer flightId;
 
+    // Uncomment and use if you decide to include bookingDate in the MongoDB document
+    // @Field("booking_date")
+    // private LocalDate bookingDate;
 
-//    @Column(nullable = false)
-//    private LocalDate bookingDate;
-
-    @Column(nullable = false)
+    @Field("number_of_seats")
     private Integer numberOfSeats;
 
-    @Column(nullable = false)
+    @Field("price")
     private Double price;
 
-    @Column()
+    @Field("booking_status")
     private BookingStatus bookingStatus;
 
+    // Getters and Setters
 
-
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -56,13 +57,14 @@ public class Booking {
         this.flightId = flightId;
     }
 
-//    public LocalDate getBookingDate() {
-//        return bookingDate;
-//    }
-//
-//    public void setBookingDate(LocalDate bookingDate) {
-//        this.bookingDate = bookingDate;
-//    }
+    // Uncomment and use if you decide to include bookingDate in the MongoDB document
+    // public LocalDate getBookingDate() {
+    //     return bookingDate;
+    // }
+    //
+    // public void setBookingDate(LocalDate bookingDate) {
+    //     this.bookingDate = bookingDate;
+    // }
 
     public Double getPrice() {
         return price;
@@ -71,7 +73,6 @@ public class Booking {
     public void setPrice(Double price) {
         this.price = price;
     }
-
 
     public Integer getNumberOfSeats() {
         return numberOfSeats;
@@ -88,7 +89,4 @@ public class Booking {
     public void setBookingStatus(BookingStatus bookingStatus) {
         this.bookingStatus = bookingStatus;
     }
-
-    // Getters and Setters
 }
-

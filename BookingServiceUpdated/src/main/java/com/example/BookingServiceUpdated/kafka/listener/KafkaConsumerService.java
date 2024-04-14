@@ -1,7 +1,7 @@
 package com.example.BookingServiceUpdated.kafka.listener;
 
 import com.example.BookingServiceUpdated.dto.BookingStatusDTO;
-import com.example.BookingServiceUpdated.kafka.KafkaProducerService;
+import com.example.BookingServiceUpdated.kafka.producer.KafkaProducerService;
 import com.example.BookingServiceUpdated.service.BookingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

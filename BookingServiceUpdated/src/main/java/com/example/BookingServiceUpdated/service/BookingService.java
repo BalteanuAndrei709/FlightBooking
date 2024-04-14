@@ -1,17 +1,15 @@
 package com.example.BookingServiceUpdated.service;
 
 import com.example.BookingServiceUpdated.dto.BookingDTO;
-import com.example.BookingServiceUpdated.kafka.KafkaProducerService;
+import com.example.BookingServiceUpdated.kafka.producer.KafkaProducerService;
 import com.example.BookingServiceUpdated.mapper.BookingMapper;
 import com.example.BookingServiceUpdated.model.Booking;
 import com.example.BookingServiceUpdated.model.BookingStatus;
 import com.example.BookingServiceUpdated.repository.BookingRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Book;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,7 +47,7 @@ public class BookingService {
         return bookingDTO;
     }
 
-    public Optional<BookingDTO> getBookingById(Integer id) {
+    public Optional<BookingDTO> getBookingById(String id) {
         return bookingRepository.findById(id)
                 .map(bookingMapper::toDTO);
     }
@@ -60,7 +58,7 @@ public class BookingService {
                 .map(bookingMapper::toDTO)
                 .collect(Collectors.toList());
     }
-    public BookingDTO updateBooking(Integer id, BookingDTO bookingDTO) {
+    public BookingDTO updateBooking(String id, BookingDTO bookingDTO) {
         Booking bookingToUpdate = bookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
 
@@ -79,7 +77,7 @@ public class BookingService {
     }
 
     @Transactional
-    public void updateBookingStatus(int bookingId, BookingStatus status) {
+    public void updateBookingStatus(String bookingId, BookingStatus status) {
         Booking bookingToUpdate = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + bookingId));
 

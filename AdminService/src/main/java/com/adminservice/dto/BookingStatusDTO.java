@@ -4,14 +4,14 @@ import com.adminservice.model.BookingStatus;
 
 public class BookingStatusDTO {
 
-    private Integer id;
+    private String id;
     private BookingStatus bookingStatus;
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -27,7 +27,7 @@ public class BookingStatusDTO {
     public BookingStatusDTO() {
     }
 
-    public BookingStatusDTO(Integer bookingId, BookingStatus bookingStatus) {
+    public BookingStatusDTO(String bookingId, BookingStatus bookingStatus) {
         this.id = bookingId;
         this.bookingStatus = bookingStatus;
     }

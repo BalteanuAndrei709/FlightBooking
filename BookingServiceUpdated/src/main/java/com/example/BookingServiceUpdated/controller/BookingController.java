@@ -35,7 +35,7 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookingDTO> getBookingById(@PathVariable Integer id) {
+    public ResponseEntity<BookingDTO> getBookingById(@PathVariable String id) {
         Optional<BookingDTO> booking = bookingService.getBookingById(id);
         return booking
                 .map(value -> new ResponseEntity<>(value, HttpStatus.OK))

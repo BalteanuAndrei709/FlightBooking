@@ -4,14 +4,14 @@ import com.example.BookingServiceUpdated.model.BookingStatus;
 
 public class BookingStatusDTO {
 
-    private Integer id;
+    private String id;
     private BookingStatus bookingStatus;
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -27,7 +27,7 @@ public class BookingStatusDTO {
     public BookingStatusDTO() {
     }
 
-    public BookingStatusDTO(Integer id, BookingStatus bookingStatus) {
+    public BookingStatusDTO(String id, BookingStatus bookingStatus) {
         this.id = id;
         this.bookingStatus = bookingStatus;
     }

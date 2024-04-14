@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public class BookingDTO {
 
-    private Integer id;
+    private String id;
     private Integer flightId;
     private String userName;
     //private LocalDate bookingDate;
@@ -28,7 +28,7 @@ public class BookingDTO {
 //                '}';
 //    }
 
-    public BookingDTO(Integer id, Integer flightId, String userName, LocalDate bookingDate, Double price, Integer numberOfSeats) {
+    public BookingDTO(String id, Integer flightId, String userName, LocalDate bookingDate, Double price, Integer numberOfSeats) {
         this.id = id;
         this.flightId = flightId;
         this.userName = userName;
@@ -38,11 +38,11 @@ public class BookingDTO {
     }
 
     // Getters and Setters
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
