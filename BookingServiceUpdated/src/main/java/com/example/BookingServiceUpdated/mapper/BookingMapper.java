@@ -2,9 +2,7 @@ package com.example.BookingServiceUpdated.mapper;
 
 
 import com.example.BookingServiceUpdated.dto.BookingDTO;
-import com.example.BookingServiceUpdated.dto.BookingDTO;
 import com.example.BookingServiceUpdated.model.Booking;
-import com.example.BookingServiceUpdated.model.BookingStatus;
 import org.springframework.stereotype.Component;
 
 @Component
