@@ -14,29 +14,29 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaConsumerService {
 
-    @Autowired
     private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Autowired
     private KafkaProducerService kafkaProducerService;
     @Autowired
     private BookingService bookingService;
 
-
-
     @KafkaListener(topics = "bookings-status", groupId = "admin-bookings-group")
     public void listen(ConsumerRecord<String, String> record) {
-
+        logger.info("Received Kafka message: Key - {}, Value - {}", record.key(), record.value());
         try {
             BookingStatusDTO bookingStatusDTO = objectMapper.readValue(record.value(), BookingStatusDTO.class);
-            logger.info("Received booking status: {}", bookingStatusDTO);
-
-            bookingService.updateBookingStatus(bookingStatusDTO.getId(), bookingStatusDTO.getBookingStatus());
-
-
-        } catch(Exception e) {
-            logger.error("Received booking: {}", e.getMessage());
+            bookingService.updateBookingStatus(bookingStatusDTO.getId(), bookingStatusDTO.getBookingStatus()).subscribe(
+                    success -> logger.info("Successfully updated booking status for ID: {}", bookingStatusDTO.getId()),
+                    error -> logger.error("Failed to update booking status: {}", error.getMessage())
+            );
+        } catch (Exception e) {
+            logger.error("Error processing Kafka message: {}", e.getMessage(), e);
         }
-
     }
+
+
+
+
 }

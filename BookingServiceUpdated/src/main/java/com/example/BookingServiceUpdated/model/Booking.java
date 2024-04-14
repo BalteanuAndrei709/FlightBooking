@@ -4,23 +4,17 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDate;
-
 @Document(collection = "bookings")
 public class Booking {
 
     @Id
-    private String id; // MongoDB typically uses String for IDs
+    private String id;
 
     @Field("user_name")
     private String userName;
 
     @Field("flight_id")
     private Integer flightId;
-
-    // Uncomment and use if you decide to include bookingDate in the MongoDB document
-    // @Field("booking_date")
-    // private LocalDate bookingDate;
 
     @Field("number_of_seats")
     private Integer numberOfSeats;
@@ -56,15 +50,6 @@ public class Booking {
     public void setFlightId(Integer flightId) {
         this.flightId = flightId;
     }
-
-    // Uncomment and use if you decide to include bookingDate in the MongoDB document
-    // public LocalDate getBookingDate() {
-    //     return bookingDate;
-    // }
-    //
-    // public void setBookingDate(LocalDate bookingDate) {
-    //     this.bookingDate = bookingDate;
-    // }
 
     public Double getPrice() {
         return price;

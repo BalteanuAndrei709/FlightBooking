@@ -6,13 +6,13 @@ import com.example.BookingServiceUpdated.mapper.BookingMapper;
 import com.example.BookingServiceUpdated.model.Booking;
 import com.example.BookingServiceUpdated.model.BookingStatus;
 import com.example.BookingServiceUpdated.repository.BookingRepository;
-import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class BookingService {
@@ -25,6 +25,7 @@ public class BookingService {
     private FlightService flightService;
 
     private KafkaProducerService kafkaProducerService;
+    private static final Logger logger = LoggerFactory.getLogger(BookingService.class);
 
     @Autowired
     public BookingService(BookingRepository bookingRepository, BookingMapper bookingMapper, FlightService flightService, KafkaProducerService kafkaProducerService) {
@@ -35,57 +36,51 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingDTO createBooking(BookingDTO bookingDTO) {
-        Booking booking = bookingMapper.toEntity(bookingDTO);
-
-        booking = bookingRepository.save(booking);
-        bookingDTO.setId(booking.getId());
-        bookingDTO.setBookingStatus(BookingStatus.PENDING);
-
-        //flightService.decrementSeatsAvailable(bookingDTO.getFlightId(), bookingDTO.getNumberOfSeats());
-        kafkaProducerService.sendMessage(bookingDTO);
-        return bookingDTO;
+    public Mono<BookingDTO> createBooking(BookingDTO bookingDTO) {
+        return Mono.just(bookingDTO)
+                .map(bookingMapper::toEntity)
+                .doOnNext(booking -> booking.setBookingStatus(BookingStatus.PENDING))
+                .flatMap(bookingRepository::save)
+                .doOnNext(booking -> kafkaProducerService.sendMessage(bookingMapper.toDTO(booking)))
+                .map(bookingMapper::toDTO);
     }
 
-    public Optional<BookingDTO> getBookingById(String id) {
+    public Mono<BookingDTO> getBookingById(String id) {
         return bookingRepository.findById(id)
                 .map(bookingMapper::toDTO);
     }
 
-    public List<BookingDTO> getAllBookings() {
-        List<Booking> bookings = bookingRepository.findAll();
-        return bookings.stream()
-                .map(bookingMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-    public BookingDTO updateBooking(String id, BookingDTO bookingDTO) {
-        Booking bookingToUpdate = bookingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
-
-        // Update the booking entity's fields with values from the bookingDTO
-        bookingToUpdate.setFlightId(bookingDTO.getFlightId());
-        bookingToUpdate.setUserName(bookingDTO.getUserName());
-        //bookingToUpdate.setBookingDate(bookingDTO.getBookingDate());
-        bookingToUpdate.setPrice(bookingDTO.getPrice());
-        bookingToUpdate.setNumberOfSeats(bookingDTO.getNumberOfSeats());
-
-        // Save the updated booking entity
-        Booking updatedBooking = bookingRepository.save(bookingToUpdate);
-
-        // Return the updated booking as a DTO
-        return bookingMapper.toDTO(updatedBooking);
+    public Flux<BookingDTO> getAllBookings() {
+        return bookingRepository.findAll()
+                .map(bookingMapper::toDTO);
     }
 
     @Transactional
-    public void updateBookingStatus(String bookingId, BookingStatus status) {
-        Booking bookingToUpdate = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + bookingId));
+    public Mono<BookingDTO> updateBooking(String id, BookingDTO bookingDTO) {
+        return bookingRepository.findById(id)
+                .map(existingBooking -> updateExistingBooking(existingBooking, bookingDTO))
+                .flatMap(bookingRepository::save)
+                .map(bookingMapper::toDTO);
+    }
 
-        // Update the bookingToUpdate status
-        bookingToUpdate.setBookingStatus(status);
+    private Booking updateExistingBooking(Booking booking, BookingDTO bookingDTO) {
+        booking.setFlightId(bookingDTO.getFlightId());
+        booking.setUserName(bookingDTO.getUserName());
+        booking.setPrice(bookingDTO.getPrice());
+        booking.setNumberOfSeats(bookingDTO.getNumberOfSeats());
+        return booking;
+    }
 
-        // Save the updated bookingToUpdate
-        bookingRepository.save(bookingToUpdate);
+    @Transactional
+    public Mono<Void> updateBookingStatus(String bookingId, BookingStatus status) {
+        return bookingRepository.findById(bookingId)
+                .doOnNext(booking -> {
+                    logger.info("Found booking for update: {}", booking);
+                    booking.setBookingStatus(status);
+                })
+                .flatMap(bookingRepository::save)
+                .doOnSuccess(booking -> logger.info("Booking updated successfully: {}", booking))
+                .then();
     }
 
 
