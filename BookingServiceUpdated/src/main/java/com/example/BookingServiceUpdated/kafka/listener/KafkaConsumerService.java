@@ -36,6 +36,16 @@ public class KafkaConsumerService {
         }
     }
 
+    @KafkaListener(topics = "bookings-status-payments", groupId = "admin-group-payments")
+    public void listenPayments(ConsumerRecord<String, String> record) {
+        logger.info("Received Kafka message for payments: Key - {}, Value - {}", record.key(), record.value());
+        try {
+            // Process the payment message here
+        } catch (Exception e) {
+            logger.error("Error processing Kafka message for payments: {}", e.getMessage(), e);
+        }
+    }
+
 
 
 
