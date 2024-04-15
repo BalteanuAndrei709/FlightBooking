@@ -1,50 +1,61 @@
-package com.adminservice.kafka.listener;
-import com.adminservice.dto.BookingDTO;
-import com.adminservice.dto.BookingStatusDTO;
-import com.adminservice.kafka.producer.KafkaProducerService;
-import com.adminservice.model.BookingStatus;
-import com.adminservice.service.FlightService;
+package com.payment.paymentservice.kafka.listener;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.payment.paymentservice.dto.BookingDTO;
+import com.payment.paymentservice.dto.BookingStatusDTO;
+import com.payment.paymentservice.kafka.producer.KafkaProducerService;
+import com.payment.paymentservice.model.BookingStatus;
+import com.payment.paymentservice.model.OrderStatus;
+import com.payment.paymentservice.model.PaymentOrder;
+import com.payment.paymentservice.service.OrderService;
+import com.payment.paymentservice.service.PayPalService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import reactor.core.publisher.Mono;
 
 @Service
 public class KafkaConsumerService {
 
-    @Autowired
-    private FlightService flightService;
     private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private KafkaProducerService kafkaProducerService;
+    @Autowired
+    private PayPalService payPalService;
+    @Autowired
+    private OrderService orderService;
 
 
 
-    @KafkaListener(topics = "bookings", groupId = "admin-group")
+    @KafkaListener(topics = "bookings-status-payments", groupId = "admin-group-payments")
     public void listen(ConsumerRecord<String, String> record) {
 
         try {
             BookingDTO bookingDTO = objectMapper.readValue(record.value(), BookingDTO.class);
-            logger.info("Received booking: {}", bookingDTO);
-            String bookingId = bookingDTO.getId();
             BookingStatusDTO bookingStatusDTO = new BookingStatusDTO();
+            String bookingId = bookingDTO.getId();
             bookingStatusDTO.setId(bookingId);
+            logger.info("Received booking: {}", bookingDTO);
+            double bookingPrice = bookingDTO.getPrice();
+            Mono<PaymentOrder> paymentOrderMono = payPalService.createPayment(bookingPrice, "RO86TRM");
+            paymentOrderMono.doOnNext(event -> {
+                orderService.findByOrderId(event.getPayId()).subscribe(order -> {
+                    String status = order.getStatus();
+                    if (status.equals("INITIATED") ){
+                        bookingStatusDTO.setBookingStatus(BookingStatus.PENDING);
+                        logger.info("Status booking updated: {}", bookingStatusDTO.getBookingStatus());
+                        kafkaProducerService.sendMessage(bookingStatusDTO);
+                    }
+                });
+            });
 
-            if (flightService.hasEnoughSeatsAvailable(bookingDTO.getFlightId(), bookingDTO.getNumberOfSeats())){
-                flightService.decrementSeatsAvailable(bookingDTO.getFlightId(), bookingDTO.getNumberOfSeats());
 
-                bookingStatusDTO.setBookingStatus(BookingStatus.CONFIRMED);
-            } else {
-                bookingStatusDTO.setBookingStatus(BookingStatus.CANCELED);
-            }
-
-
-            kafkaProducerService.sendMessage(bookingStatusDTO);
         } catch(Exception e) {
             logger.error("Received booking: {}", e.getMessage());
         }

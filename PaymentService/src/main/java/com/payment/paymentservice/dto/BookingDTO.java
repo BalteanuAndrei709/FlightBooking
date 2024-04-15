@@ -1,8 +1,7 @@
-package com.example.BookingServiceUpdated.dto;
+package com.payment.paymentservice.dto;
 
-import com.example.BookingServiceUpdated.model.BookingStatus;
+import com.payment.paymentservice.model.BookingStatus;
 
-import java.time.LocalDate;
 
 public class BookingDTO {
 
@@ -16,11 +15,10 @@ public class BookingDTO {
     // Constructors
     public BookingDTO() {}
 
-    public BookingDTO(String id, Integer flightId, String userName, LocalDate bookingDate, Double price, Integer numberOfSeats) {
+    public BookingDTO(String id, Integer flightId, String userName, Double price, Integer numberOfSeats) {
         this.id = id;
         this.flightId = flightId;
         this.userName = userName;
-        //this.bookingDate = bookingDate;
         this.price = price;
         this.numberOfSeats = numberOfSeats;
     }
