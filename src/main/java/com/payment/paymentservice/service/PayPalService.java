@@ -6,6 +6,13 @@ import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +21,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 
 @Service
 public class PayPalService {
@@ -22,17 +30,21 @@ public class PayPalService {
     private final String cancelUrl;
     private final OrderService orderService;
     private final BusinessPlatformService businessService;
-    private final long AVAILABLE_TIME = 10000 * 6; // 1 minutes
+    private final long AVAILABLE_TIME = 10000 * 6; // 1 minutes (10 seconds = 10000)
+    private final Properties properties;
+    private final String TOPIC = "flight-payment";
 
     @Autowired
     public PayPalService(@Value("${return.url}") String returnUrl,
                          @Value("${cancel.url}") String cancelUrl,
                          OrderService orderService,
-                         BusinessPlatformService businessService) {
+                         BusinessPlatformService businessService,
+                         Properties properties) {
         this.returnUrl = returnUrl;
         this.cancelUrl = cancelUrl;
         this.orderService = orderService;
         this.businessService = businessService;
+        this.properties = properties;
 
     }
 
@@ -102,17 +114,17 @@ public class PayPalService {
                                 .orElseThrow(NoSuchElementException::new)
                                 .href();
 
-                        //System.out.println(order.status());
-
                         OrderStatus orderStatus = new OrderStatus();
                         orderStatus.setOrderId(order.id());
                         orderStatus.setStatus("INITIATED");
                         orderStatus.setCreationTime(System.currentTimeMillis());
                         orderStatus.setExpirationTime(orderStatus.getCreationTime() + AVAILABLE_TIME);
 
+                        sendKafkaMessage(orderStatus);
+
                         orderService.addOrder(orderStatus).subscribe();
 
-                        PaymentOrder paymentOrder = new PaymentOrder("success", order.id(), redirectUrl);
+                        PaymentOrder paymentOrder = new PaymentOrder("created", order.id(), redirectUrl);
                         return Mono.just(paymentOrder);
 
                     } catch (Exception e) {
@@ -198,7 +210,7 @@ public class PayPalService {
 
                 return Mono.just(getOrderObj);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                return Mono.error(new RuntimeException(e));
             }
         });
         return orderMono;
@@ -216,6 +228,7 @@ public class PayPalService {
             if (callTime > orderStatus.getExpirationTime() && !orderStatus.getStatus().equals("SUCCESS")) {
                 orderStatus.setStatus("CANCELED");
                 orderService.updateOrder(orderStatus, token).subscribe();
+                sendKafkaMessage(orderStatus);
                 return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getId()));
             } else {
                 monoBusiness.subscribe(event -> {
@@ -227,6 +240,7 @@ public class PayPalService {
                         Order order = httpResponse.result();
                         orderStatus.setStatus("SUCCESS");
                         orderService.updateOrder(orderStatus, order.id()).subscribe();
+                        sendKafkaMessage(orderStatus);
                     } catch (IOException e) {
                         throw new OrderNotPayedException("Payment with id " + token + " was not paid by following the given link");
                     }
@@ -236,6 +250,16 @@ public class PayPalService {
         });
 
         return resultMono;
+    }
+
+    private void sendKafkaMessage(OrderStatus orderStatus) {
+        KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
+        String key = orderStatus.getOrderId();
+        String value = orderStatus.getStatus();
+        ProducerRecord<String, String> producerRecord =
+                new ProducerRecord<>(TOPIC, key, value);
+        producer.send(producerRecord);
+        producer.close();
     }
 
 }
