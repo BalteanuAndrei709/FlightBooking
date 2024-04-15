@@ -12,6 +12,6 @@ public class ViewController {
     }
     @GetMapping("/payment/cancel")
     public String cancelPayment() {
-        return "error";
+        return "cancel";
     }
 }
