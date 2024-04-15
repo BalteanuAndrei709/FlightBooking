@@ -1,42 +1,37 @@
 package com.example.BookingServiceUpdated.model;
 
-import jakarta.persistence.*;
-import java.time.LocalDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-@Entity
-@Table(name = "booking")
+@Document(collection = "bookings")
 public class Booking {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private String id;
 
-    @Column(nullable = false)
+    @Field("user_name")
     private String userName;
 
-    @Column(nullable = false)
+    @Field("flight_id")
     private Integer flightId;
 
-
-//    @Column(nullable = false)
-//    private LocalDate bookingDate;
-
-    @Column(nullable = false)
+    @Field("number_of_seats")
     private Integer numberOfSeats;
 
-    @Column(nullable = false)
+    @Field("price")
     private Double price;
 
-//    @Column(nullable = false)
-//    private BookingStatus bookingStatus;
+    @Field("booking_status")
+    private BookingStatus bookingStatus;
 
+    // Getters and Setters
 
-
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -56,14 +51,6 @@ public class Booking {
         this.flightId = flightId;
     }
 
-//    public LocalDate getBookingDate() {
-//        return bookingDate;
-//    }
-//
-//    public void setBookingDate(LocalDate bookingDate) {
-//        this.bookingDate = bookingDate;
-//    }
-
     public Double getPrice() {
         return price;
     }
@@ -71,7 +58,6 @@ public class Booking {
     public void setPrice(Double price) {
         this.price = price;
     }
-
 
     public Integer getNumberOfSeats() {
         return numberOfSeats;
@@ -81,14 +67,11 @@ public class Booking {
         this.numberOfSeats = numberOfSeats;
     }
 
-//    public BookingStatus getBookingStatus() {
-//        return bookingStatus;
-//    }
-//
-//    public void setBookingStatus(BookingStatus bookingStatus) {
-//        this.bookingStatus = bookingStatus;
-//    }
+    public BookingStatus getBookingStatus() {
+        return bookingStatus;
+    }
 
-    // Getters and Setters
+    public void setBookingStatus(BookingStatus bookingStatus) {
+        this.bookingStatus = bookingStatus;
+    }
 }
-

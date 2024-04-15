@@ -1,4 +1,4 @@
-package com.example.BookingServiceUpdated.kafka;
+package com.adminservice.kafka.producer;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -29,3 +29,4 @@ public class KafkaProducerConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 }
+
