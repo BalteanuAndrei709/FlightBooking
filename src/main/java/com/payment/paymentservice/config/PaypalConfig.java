@@ -1,12 +1,7 @@
 package com.payment.paymentservice.config;
 
-import com.payment.paymentservice.repository.OrderRepository;
-import com.paypal.core.PayPalEnvironment;
-import com.paypal.core.PayPalHttpClient;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Properties;
