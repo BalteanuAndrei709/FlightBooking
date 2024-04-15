@@ -1,6 +1,33 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./volumes/admin_service:/data/db
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=admin_service
+
+  admin-service:
+    depends_on:
+      - postgres
+    build:
+      context: ./AdminService
+    container_name: admin-service
+    ports:
+      - "8888:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATASOURCE_URl : jdbc:postgresql://postgres:5432/admin_service
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
   mongodb:
     image: mongo:latest
     container_name: mongodb
@@ -12,31 +39,156 @@ services:
     volumes:
       - ./volumes/operator_service:/data/db
 
-  operator_service_wizzair:
+  operator-service-wizzair:
     depends_on:
       - mongodb
     build:
       context: ./OperatorService
-    container_name: operator_service_wizzair
     ports:
-      - "8087:8000"
+      - "8090:8000"
     environment:
       SERVER_PORT: 8000
       SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
       OPERATOR_NAME: WizzAir
+    container_name: operator-service-wizzair
 
-  operator_service_lufthansa:
+  operator-service-tarom:
     depends_on:
       - mongodb
     build:
       context: ./OperatorService
-    container_name: operator_service_lufthansa
+    container_name: operator-service-tarom
     ports:
-      - "8088:8000"
+      - "8091:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+      OPERATOR_NAME: Tarom
+
+  operator-service-lufthansa:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator-service-lufthansa
+    ports:
+      - "8092:8000"
     environment:
       SERVER_PORT: 8000
       SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
       OPERATOR_NAME: Lufthansa
+
+  operator-service-ryanair:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator-service-ryanair
+    ports:
+      - "8093:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+      OPERATOR_NAME: Ryanair
+
+  operator-service-america-airlines:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator-service-america-airlines
+    ports:
+      - "8094:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+      OPERATOR_NAME: America Airlines
+
+  operator-service-emirates:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator-service-emirates
+    ports:
+      - "8095:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+      OPERATOR_NAME: Emirates
+
+  operator-service-delta-airlines:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator-service-delta-airlines
+    ports:
+      - "8096:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+      OPERATOR_NAME: Delta Airlines
+
+  operator-service-united-airlines:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator-service-united-airlines
+    ports:
+      - "8097:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+      OPERATOR_NAME: United Airlines
+
+
+  operator-service-southwest-airlines:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator-service-southwest-airlines
+    ports:
+      - "8098:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+      OPERATOR_NAME: Southwest Airlines
+
+  operator-service-turkish-airlines:
+    depends_on:
+      - mongodb
+    build:
+      context: ./OperatorService
+    container_name: operator-service-turkish-airlines
+    ports:
+      - "8099:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
+      OPERATOR_NAME: Turkish Airlines
+
+  flight-search-service:
+    build:
+      context: ./FlightSearchService
+    container_name: flight-search-service
+    ports:
+      - "8889:8000"
+    environment:
+      SERVER_PORT: 8000
+    depends_on:
+      - operator-service-lufthansa
+      - operator-service-wizzair
+      - operator-service-america-airlines
+      - operator-service-delta-airlines
+      - operator-service-emirates
+      - operator-service-ryanair
+      - operator-service-southwest-airlines
+      - operator-service-tarom
+      - operator-service-turkish-airlines
+      - operator-service-united-airlines
 
 volumes:
   db:

@@ -1,7 +1,5 @@
 package com.adminservice.dto;
 
-import com.adminservice.model.Operator;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -17,16 +15,6 @@ public class FlightDTO {
     private LocalTime timeOfDeparture;
 
     public FlightDTO() {
-    }
-
-    public FlightDTO(Integer id, Operator operator, String leaving, String destination,
-                     Integer numberSeatsTotal, Integer numberSeatsAvailable) {
-        this.id = id;
-        // this.operator = operator;
-        this.leaving = leaving;
-        this.destination = destination;
-        this.numberSeatsTotal = numberSeatsTotal;
-        this.numberSeatsAvailable = numberSeatsAvailable;
     }
 
     public Integer getId() {

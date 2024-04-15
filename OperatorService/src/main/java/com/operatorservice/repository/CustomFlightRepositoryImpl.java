@@ -53,7 +53,7 @@ public class CustomFlightRepositoryImpl implements CustomFlightRepository{
             LocalDateTime endOfDay = departureDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).minusSeconds(1).toLocalDateTime(); // Just before the next day starts in UTC
             query.addCriteria(Criteria.where("departureDate").gte(startOfDay).lt(endOfDay));
         }
-        else if (returnDate != null){
+        if (returnDate != null){
             LocalDateTime endOfDay = returnDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).minusSeconds(1).toLocalDateTime(); // Just before the next day starts in UTC
             query.addCriteria(Criteria.where("departureDate").lt(endOfDay));
         }

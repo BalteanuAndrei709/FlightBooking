@@ -1,6 +1,5 @@
 package com.adminservice.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -27,8 +26,7 @@ public class Operator {
     public Operator() {
     }
 
-    public Operator(Integer id, List<Flight> allFlights, String name, String iban, String apiSearch) {
-        this.id = id;
+    public Operator(List<Flight> allFlights, String name, String iban, String apiSearch) {
         this.allFlights = allFlights;
         this.name = name;
         this.iban = iban;

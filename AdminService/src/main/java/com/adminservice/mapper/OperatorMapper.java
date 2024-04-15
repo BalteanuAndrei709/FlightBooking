@@ -1,11 +1,9 @@
 package com.adminservice.mapper;
 
-
 import com.adminservice.dto.OperatorDTO;
+import com.adminservice.dto.CompressedOperatorDto;
 import com.adminservice.model.Operator;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
 
 @Component
 public class OperatorMapper {
@@ -16,6 +14,13 @@ public class OperatorMapper {
         this.flightMapper = flightMapper;
     }
 
+    /**
+     * Method that maps an Operator to an OperatorDto.
+     * @param operator
+     * The entity of type Operator.
+     * @return
+     * A OperatorDto
+     */
     public OperatorDTO toDto(Operator operator) {
         if (operator == null)
             return null;
@@ -25,22 +30,27 @@ public class OperatorMapper {
             operatorDTO.setIban(operator.getIban());
             operatorDTO.setName(operator.getName());
             operatorDTO.setApiSearch(operator.getApiSearch());
-            operatorDTO.setAllFlights(operator.getAllFlights().stream().map(flightMapper::toDTO).toList());
+            operatorDTO.setAllFlights(flightMapper.entitiesToDTOs(operator.getAllFlights()));
             return operatorDTO;
         }
     }
 
-    public Operator toEntity(OperatorDTO operatorDTO) {
-        if (operatorDTO == null) {
+    /**
+     * Method that maps an Operator to an OperatorDto.
+     * @param operator
+     * The entity of type Operator.
+     * @return
+     * A CompressedOperatorDto
+     */
+    public CompressedOperatorDto toCompressedDto(Operator operator) {
+        if (operator == null)
             return null;
-        } else {
-            Operator operator = new Operator();
-            operator.setId(operatorDTO.getId());
-            operator.setIban(operatorDTO.getIban());
-            operator.setName(operatorDTO.getName());
-            operator.setApiSearch(operatorDTO.getApiSearch());
-            operator.setAllFlights(new ArrayList<>());
-            return operator;
+        else {
+            CompressedOperatorDto compressedOperatorDto = new CompressedOperatorDto();
+            compressedOperatorDto.setIban(operator.getIban());
+            compressedOperatorDto.setName(operator.getName());
+            compressedOperatorDto.setApiSearch(operator.getApiSearch());
+            return compressedOperatorDto;
         }
     }
 }
