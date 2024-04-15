@@ -3,6 +3,13 @@ package com.payment.paymentservice.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+/**
+ * This class represents the operator from which a user will purchase a flight ticket. To distinguish these operators when
+ * creating a purchase, the iban field is used.
+ * <p>
+ * This class also contains the clientId and clientSecret for each operator, so that paypal will now to which operator we
+ * complete a purchase.
+ */
 @Document
 public class BusinessPlatform {
     @Id

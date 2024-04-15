@@ -1,7 +1,5 @@
 package com.payment.paymentservice.model;
 
-import java.io.Serializable;
-
 /**
  * This model is used to represent the order that was captured.
  * It uses the payId generated after creating a new payment to identify it inside PayPal.

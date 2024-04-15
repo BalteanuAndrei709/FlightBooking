@@ -1,14 +1,13 @@
 package com.payment.paymentservice.model;
 
-import java.io.Serializable;
-
 /**
- * Represents the order that has been created
+ * Represents the order that has been created. If the order has been created with no problem, then it will return a status "success",
+ * alongside with the orderId and the url that the user must acces to pay the amount via PayPal.
  */
 public class PaymentOrder {
 
     private String status;
-    private String payId;
+    private String orderId;
     private String redirectUrl;
 
     public String getStatus() {
@@ -19,12 +18,12 @@ public class PaymentOrder {
         this.status = status;
     }
 
-    public String getPayId() {
-        return payId;
+    public String getOrderId() {
+        return orderId;
     }
 
-    public void setPayId(String payId) {
-        this.payId = payId;
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     public String getRedirectUrl() {
@@ -40,7 +39,7 @@ public class PaymentOrder {
 
     public PaymentOrder(String status, String payId, String redirectUrl) {
         this.status = status;
-        this.payId = payId;
+        this.orderId = payId;
         this.redirectUrl = redirectUrl;
     }
 }

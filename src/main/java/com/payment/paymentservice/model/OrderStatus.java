@@ -4,7 +4,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
- *
+ * This class represents the status of an order, from its creation until it has been either paid with success or canceled.
+ * First, when an order has been created, it will be saved with the status "INITIALIZED". Then, it will either be updated with
+ * the status "SUCCESS" or "CANCELED", depending on if the order has been paid successfully or not.
  */
 @Document
 public class OrderStatus {
