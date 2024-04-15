@@ -25,7 +25,7 @@ public class FlightHandler {
         var leaving = request.pathVariable("leaving");
         String optionalDestination = request.queryParam("destination").orElse(null);
         Integer optionalPageNumber= Integer.valueOf(request.queryParam("pageNumber").orElse(String.valueOf(0)));
-        Integer optionalPageSize = Integer.valueOf(request.queryParam("pageSize").orElse(String.valueOf(100)));
+        Integer optionalPageSize = Integer.valueOf(request.queryParam("pageSize").orElse(String.valueOf(Integer.MAX_VALUE)));
 
         try {
             LocalDate optionalDepartureDate = request.queryParam("departureDate").map(LocalDate::parse).orElse(null);

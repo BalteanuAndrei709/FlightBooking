@@ -101,4 +101,17 @@ public class Flight {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    @Override
+    public String toString() {
+        return "Flight{" +
+                "id='" + id + '\'' +
+                ", operator='" + operator + '\'' +
+                ", departureDate=" + departureDate +
+                ", departureTime='" + departureTime + '\'' +
+                ", leaving='" + leaving + '\'' +
+                ", destination='" + destination + '\'' +
+                ", price=" + price +
+                '}';
+    }
 }

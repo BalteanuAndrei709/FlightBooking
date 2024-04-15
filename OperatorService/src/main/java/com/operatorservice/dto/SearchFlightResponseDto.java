@@ -22,4 +22,12 @@ public class SearchFlightResponseDto {
     public List<Flight> getReturningFlight() {
         return returningFlight;
     }
+
+    @Override
+    public String toString() {
+        return "SearchFlightResponseDto{" +
+                "leavingFlight=" + leavingFlight +
+                ", returningFlight=" + returningFlight +
+                '}';
+    }
 }

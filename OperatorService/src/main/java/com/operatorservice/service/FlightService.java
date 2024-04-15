@@ -87,7 +87,6 @@ public class FlightService {
                 operator, leaving, destination, departureDate, returnDate, PageRequest.of(pageNumber, pageSize));
         Flux<Flight> returningFlights = flightRepository.findReturningFlights(
                 operator, destination, leaving, departureDate, returnDate, PageRequest.of(pageNumber, pageSize));
-
         return Mono.zip(
                 leavingFlights.collectList(),
                 returningFlights.collectList(),
