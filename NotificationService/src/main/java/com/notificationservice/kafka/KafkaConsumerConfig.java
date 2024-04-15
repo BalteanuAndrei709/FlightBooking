@@ -2,6 +2,8 @@ package com.notificationservice.kafka;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.notificationservice.dto.NotificationDTO;
 import com.notificationservice.model.Notification;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -19,7 +21,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, Notification> consumerFactory() {
+    public ConsumerFactory<String, NotificationDTO> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "myGroup");
@@ -32,15 +34,15 @@ public class KafkaConsumerConfig {
                 config,
                 new StringDeserializer(),
                 // Pass the Notification.class to the JsonDeserializer constructor
-                new JsonDeserializer<>(Notification.class, false)
+                new JsonDeserializer<>(NotificationDTO.class, false)
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Notification> concurrentKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Notification> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, NotificationDTO> concurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, NotificationDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        //factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
 }

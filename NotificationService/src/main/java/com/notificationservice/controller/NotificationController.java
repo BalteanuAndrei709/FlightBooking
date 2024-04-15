@@ -12,11 +12,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/notification")
 public class NotificationController {
     private final BookingHandlingService bookingHandlingService;
-    private final NotificationService notificationService;
 
-    public NotificationController(BookingHandlingService bookingHandlingService, NotificationService notificationService) {
+    public NotificationController(BookingHandlingService bookingHandlingService) {
         this.bookingHandlingService = bookingHandlingService;
-        this.notificationService = notificationService;
+
     }
 
     @PostMapping("/booking")
@@ -25,11 +24,4 @@ public class NotificationController {
         return new ResponseEntity<>("Notification has been sent", HttpStatus.OK);
     }
 
-
-    //test
-    @PostMapping
-    private ResponseEntity<?> addNotification(@RequestBody Notification notification){
-        notificationService.saveNotification(notification);
-        return new ResponseEntity<>("Notification added.", HttpStatus.CREATED);
-    }
 }

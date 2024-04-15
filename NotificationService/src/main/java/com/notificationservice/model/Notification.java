@@ -37,6 +37,20 @@ public class Notification {
     @JsonProperty("bookingStatus")
     private String bookingStatus;
 
+    public Notification() {
+    }
+
+    public Notification(NotificationStatus status, Integer retryCount, Integer recipientId, String message, String subject, String email, String bookingStatus) {
+
+        this.status = status;
+        this.retryCount = retryCount;
+        this.recipientId = recipientId;
+        this.message = message;
+        this.subject = subject;
+        this.email = email;
+        this.bookingStatus = bookingStatus;
+    }
+
     public String getBookingStatus() {
         return bookingStatus;
     }

@@ -1,6 +1,8 @@
 package com.notificationservice.service;
 
+import com.notificationservice.dto.NotificationDTO;
 import com.notificationservice.kafka.KafkaProducerService;
+import com.notificationservice.mapper.NotificationMapper;
 import com.notificationservice.mapper.SimpleMailMessageMapper;
 import com.notificationservice.mock.model.Booking;
 import com.notificationservice.model.Notification;
@@ -15,10 +17,12 @@ public class BookingHandlingService {
 
     private final KafkaProducerService kafkaProducerService;
     private final SimpleMailMessageMapper simpleMailMessageMapper;
+    private final NotificationMapper notificationMapper;
 
-    public BookingHandlingService(KafkaProducerService kafkaProducerService, SimpleMailMessageMapper simpleMailMessageMapper) {
+    public BookingHandlingService(KafkaProducerService kafkaProducerService, SimpleMailMessageMapper simpleMailMessageMapper, NotificationMapper notificationMapper) {
         this.kafkaProducerService = kafkaProducerService;
         this.simpleMailMessageMapper = simpleMailMessageMapper;
+        this.notificationMapper = notificationMapper;
     }
 
     public void handleBookingInitialized(Booking booking){
@@ -76,11 +80,11 @@ public class BookingHandlingService {
         customNotificationBuilder(userEmail, emailSubject, emailText, flightId, bookingStatus);
     }
 
-    public Notification sendFailedNotificationReceiving(String userEmail){
+    public NotificationDTO sendFailedNotificationReceiving(String userEmail, Integer flightId){
         String emailSubject = "Something went wrong!";
-        String emailText = "Hello,\n\nPlease contact our support, something went wrong with your booking process.\n\nThank you!";
+        String emailText = String.format("Hello,\n\nPlease contact our support, something went wrong with your booking process. Your flight id is %s.\n\nThank you!", flightId);
         SimpleMailMessage message = messageBuilder(userEmail, emailSubject, emailText);
-        return simpleMailMessageMapper.toNotification(message);
+        return notificationMapper.toDTO(simpleMailMessageMapper.toNotification(message));
     }
 
     private void customNotificationBuilder(String userEmail, String emailSubject, String emailText, Integer flightId, String bookingStatus){
@@ -90,7 +94,8 @@ public class BookingHandlingService {
         notification.setRecipientId(flightId);
         notification.setBookingStatus(bookingStatus);
         notification.setRetryCount(1);
-        kafkaProducerService.sendMessage(notification);
+        NotificationDTO notificationDTO = notificationMapper.toDTO(notification);
+        kafkaProducerService.sendMessage(notificationDTO);
     }
 
     private SimpleMailMessage messageBuilder(String userEmail, String emailSubject, String emailText){
@@ -99,7 +104,6 @@ public class BookingHandlingService {
         message.setTo(userEmail);
         message.setSubject(emailSubject);
         message.setText(emailText);
-
         return message;
     }
 }
