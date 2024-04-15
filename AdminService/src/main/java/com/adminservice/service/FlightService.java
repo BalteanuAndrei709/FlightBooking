@@ -123,7 +123,6 @@ public class FlightService {
         return !flightRepository.existsById(id);
     }
 
-    @Transactional
     public void decrementSeatsAvailable(Integer flightId, int seatsToDecrement) {
         Flight flight = flightRepository.findById(flightId)
                 .orElseThrow(() -> new IllegalArgumentException("Flight not found with id: " + flightId));
@@ -137,6 +136,18 @@ public class FlightService {
         flight.setNumberSeatsAvailable(currentSeats - seatsToDecrement);
         flightRepository.save(flight);
         logger.info("Current available seats after decrement: {}", flight.getNumberSeatsAvailable());
+
+    }
+
+    public boolean hasEnoughSeatsAvailable(int flightId, int seats) {
+        Flight flight = flightRepository.findById(flightId)
+                .orElseThrow(() -> new IllegalArgumentException("Flight not found with id: " + flightId));
+        logger.info("Current available seats before decrement: {}", flight.getNumberSeatsAvailable());
+        int currentSeats = flight.getNumberSeatsAvailable();
+        if (currentSeats < seats) {
+            return false;
+        }
+        return true;
 
     }
 
