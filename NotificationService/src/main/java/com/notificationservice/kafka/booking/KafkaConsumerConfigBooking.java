@@ -1,12 +1,10 @@
-package com.notificationservice.kafka;
+package com.notificationservice.kafka.booking;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.notificationservice.dto.BookingDTO;
 import com.notificationservice.dto.NotificationDTO;
-import com.notificationservice.model.Notification;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -16,17 +14,22 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @EnableKafka
 @Configuration
-public class KafkaConsumerConfig {
+public class KafkaConsumerConfigBooking {
 
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
     @Bean
-    public ConsumerFactory<String, NotificationDTO> consumerFactory() {
+    public ConsumerFactory<String, BookingDTO> consumerFactoryBooking() {
         Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        System.out.println(bootstrapServers);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "myGroup");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        // Configure the JsonDeserializer to deserialize to Notification class
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 
@@ -34,15 +37,16 @@ public class KafkaConsumerConfig {
                 config,
                 new StringDeserializer(),
                 // Pass the Notification.class to the JsonDeserializer constructor
-                new JsonDeserializer<>(NotificationDTO.class, false)
+                new JsonDeserializer<>(BookingDTO.class, false)
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, NotificationDTO> concurrentKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, NotificationDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+    public ConcurrentKafkaListenerContainerFactory<String, BookingDTO> concurrentKafkaListenerContainerFactoryBooking() {
+        ConcurrentKafkaListenerContainerFactory<String, BookingDTO> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactoryBooking());
+        //factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
 }

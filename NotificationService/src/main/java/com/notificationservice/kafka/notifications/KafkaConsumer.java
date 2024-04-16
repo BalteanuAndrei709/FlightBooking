@@ -1,4 +1,4 @@
-package com.notificationservice.kafka;
+package com.notificationservice.kafka.notifications;
 
 import com.google.gson.Gson;
 import com.notificationservice.dto.NotificationDTO;
@@ -9,7 +9,6 @@ import com.notificationservice.model.NotificationStatus;
 import com.notificationservice.service.NotificationService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;

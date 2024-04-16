@@ -1,4 +1,4 @@
-package com.notificationservice.mock.model;
+package com.notificationservice.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.*;

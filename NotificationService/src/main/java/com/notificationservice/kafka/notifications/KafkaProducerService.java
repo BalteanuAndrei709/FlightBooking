@@ -1,4 +1,4 @@
-package com.notificationservice.kafka;
+package com.notificationservice.kafka.notifications;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
