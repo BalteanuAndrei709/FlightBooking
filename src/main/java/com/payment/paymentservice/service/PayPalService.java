@@ -229,7 +229,7 @@ public class PayPalService {
                 orderStatus.setStatus("CANCELED");
                 orderService.updateOrder(orderStatus, token).subscribe();
                 sendKafkaMessage(orderStatus);
-                return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getId()));
+                return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getOrderId()));
             } else {
                 monoBusiness.subscribe(event -> {
 
@@ -245,7 +245,7 @@ public class PayPalService {
                         throw new OrderNotPayedException("Payment with id " + token + " was not paid by following the given link");
                     }
                 });
-                return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getId()));
+                return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getOrderId()));
             }
         });
 
