@@ -44,7 +44,10 @@ public class BookingService {
                 .map(bookingMapper::toEntity)
                 .doOnNext(booking -> booking.setBookingStatus(BookingStatus.PENDING))
                 .flatMap(bookingRepository::save)
-                .doOnNext(booking -> kafkaProducerService.sendMessage("bookings-status-payments", bookingPaymentMapper.toDTO(booking)))
+                .doOnNext(booking -> {
+
+                    kafkaProducerService.sendMessage("bookings-status-payments", bookingPaymentMapper.toDTO(booking))
+                })
                 .map(bookingMapper::toDTO);
     }
 
