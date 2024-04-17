@@ -5,12 +5,15 @@ import com.example.BookingServiceUpdated.model.BookingStatus;
 public class BookingPaymentDTO {
     private String id;
     private Double price;
+    private String iban;
 
-    public BookingPaymentDTO(){}
+    public BookingPaymentDTO() {
+    }
 
-    public BookingPaymentDTO(String id, Double price) {
+    public BookingPaymentDTO(String id, Double price, String iban) {
         this.id = id;
         this.price = price;
+        this.iban = iban;
     }
 
     public String getId() {
@@ -27,5 +30,13 @@ public class BookingPaymentDTO {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public String getIban() {
+        return iban;
+    }
+
+    public void setIban(String iban) {
+        this.iban = iban;
     }
 }
