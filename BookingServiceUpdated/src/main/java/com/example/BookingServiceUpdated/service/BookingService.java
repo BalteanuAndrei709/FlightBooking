@@ -3,6 +3,7 @@ package com.example.BookingServiceUpdated.service;
 import com.example.BookingServiceUpdated.dto.BookingDTO;
 import com.example.BookingServiceUpdated.kafka.producer.KafkaProducerService;
 import com.example.BookingServiceUpdated.mapper.BookingMapper;
+import com.example.BookingServiceUpdated.mapper.BookingPaymentMapper;
 import com.example.BookingServiceUpdated.model.Booking;
 import com.example.BookingServiceUpdated.model.BookingStatus;
 import com.example.BookingServiceUpdated.repository.BookingRepository;
@@ -21,6 +22,8 @@ public class BookingService {
     private BookingRepository bookingRepository;
 
     private BookingMapper bookingMapper;
+
+    private BookingPaymentMapper bookingPaymentMapper;
 
     private FlightService flightService;
 
@@ -41,7 +44,7 @@ public class BookingService {
                 .map(bookingMapper::toEntity)
                 .doOnNext(booking -> booking.setBookingStatus(BookingStatus.PENDING))
                 .flatMap(bookingRepository::save)
-                .doOnNext(booking -> kafkaProducerService.sendMessage("bookings-status-payments", bookingMapper.toDTO(booking)))
+                .doOnNext(booking -> kafkaProducerService.sendMessage("bookings-status-payments", bookingPaymentMapper.toDTO(booking)))
                 .map(bookingMapper::toDTO);
     }
 

@@ -3,6 +3,7 @@ package com.payment.paymentservice.kafka.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payment.paymentservice.dto.BookingDTO;
+import com.payment.paymentservice.dto.BookingPaymentDTO;
 import com.payment.paymentservice.dto.BookingStatusDTO;
 import com.payment.paymentservice.kafka.producer.KafkaProducerService;
 import com.payment.paymentservice.model.BookingStatus;
@@ -37,12 +38,12 @@ public class KafkaConsumerService {
     public void listen(ConsumerRecord<String, String> record) {
 
         try {
-            BookingDTO bookingDTO = objectMapper.readValue(record.value(), BookingDTO.class);
+            BookingPaymentDTO bookingPaymentDTO = objectMapper.readValue(record.value(), BookingPaymentDTO.class);
             BookingStatusDTO bookingStatusDTO = new BookingStatusDTO();
-            String bookingId = bookingDTO.getId();
+            String bookingId = bookingPaymentDTO.getId();
             bookingStatusDTO.setId(bookingId);
-            logger.info("Received booking: {}", bookingDTO);
-            double bookingPrice = bookingDTO.getPrice();
+            logger.info("Received booking: {}", bookingPaymentDTO);
+            double bookingPrice = bookingPaymentDTO.getPrice();
             Mono<PaymentOrder> paymentOrderMono = payPalService.createPayment(bookingPrice, "RO86TRM");
             paymentOrderMono.doOnNext(event -> {
                 orderService.findByOrderId(event.getPayId()).subscribe(order -> {

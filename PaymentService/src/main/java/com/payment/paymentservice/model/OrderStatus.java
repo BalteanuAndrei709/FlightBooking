@@ -15,6 +15,16 @@ public class OrderStatus {
     private Long creationTime;
     private Long expirationTime;
 
+    public String getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    private String bookingId;
+
     public Long getExpirationTime() {
         return expirationTime;
     }
