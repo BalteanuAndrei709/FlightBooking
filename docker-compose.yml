@@ -1,17 +1,98 @@
 version: '3.8'
 
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    restart: unless-stopped
+
+  kafka1:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka1
+    ports:
+      - "8197:8197"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:8197,PLAINTEXT://kafka1:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    restart: unless-stopped
+
+  kafka2:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka2
+    ports:
+      - "8198:8198"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:8198,PLAINTEXT://kafka2:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    restart: unless-stopped
+
+  kafka3:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka3
+    ports:
+      - "8199:8199"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:8199,PLAINTEXT://kafka3:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    restart: unless-stopped
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka1
+    ports:
+      - "8190:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: Booking Flight
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9092, kafka2:9092, kafka3:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    restart: unless-stopped
+
   postgres:
     image: postgres:latest
     container_name: postgres
     ports:
       - "5433:5432"
     volumes:
-      - ./volumes/admin_service:/data/db
+      - ./volumes/admin_service:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=root
       - POSTGRES_USER=root
       - POSTGRES_DB=admin_service
+
+  notification-service:
+    depends_on:
+      - mongodb
+      - kafka1
+      - kafka2
+      - kafka3
+    build:
+      context: ./NotificationService
+    container_name: notification-service
+    ports:
+      - "8070:8000"
+    environment:
+      SERVER_PORT: 8000
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/notifications?authSource=admin
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:9092,kafka3:9092
 
   admin-service:
     depends_on:

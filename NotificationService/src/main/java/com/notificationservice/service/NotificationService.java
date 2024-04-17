@@ -1,7 +1,7 @@
 package com.notificationservice.service;
 
 import com.notificationservice.dto.NotificationDTO;
-import com.notificationservice.kafka.KafkaProducerService;
+import com.notificationservice.kafka.notifications.KafkaProducerService;
 import com.notificationservice.mapper.NotificationMapper;
 import com.notificationservice.mapper.SimpleMailMessageMapper;
 import com.notificationservice.model.Notification;
