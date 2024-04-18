@@ -1,10 +1,11 @@
 package com.example.BookingServiceUpdated.model;
 
+import jakarta.persistence.Embedded;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection = "bookings")
+@Document(value = "bookings")
 public class Booking {
 
     @Id
@@ -23,10 +24,12 @@ public class Booking {
     private Double price;
 
     @Field("booking_status")
-    private BookingStatus bookingStatus;
+    private BookingStatus bookingStatus;  // Assume BookingStatus is an enum or another class
+
+    @Embedded
+    private BookingChecks bookingChecks;
 
     // Getters and Setters
-
     public String getId() {
         return id;
     }
@@ -51,14 +54,6 @@ public class Booking {
         this.flightId = flightId;
     }
 
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
     public Integer getNumberOfSeats() {
         return numberOfSeats;
     }
@@ -67,11 +62,27 @@ public class Booking {
         this.numberOfSeats = numberOfSeats;
     }
 
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
     public BookingStatus getBookingStatus() {
         return bookingStatus;
     }
 
     public void setBookingStatus(BookingStatus bookingStatus) {
         this.bookingStatus = bookingStatus;
+    }
+
+    public BookingChecks getBookingChecks() {
+        return bookingChecks;
+    }
+
+    public void setBookingChecks(BookingChecks bookingChecks) {
+        this.bookingChecks = bookingChecks;
     }
 }

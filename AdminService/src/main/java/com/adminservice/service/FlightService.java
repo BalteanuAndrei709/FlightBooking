@@ -1,6 +1,7 @@
 package com.adminservice.service;
 
 import com.adminservice.dto.CompressedFlightDTO;
+import com.adminservice.dto.ReserveSeatsDTO;
 import com.adminservice.exception.InvalidParameterException;
 import com.adminservice.model.Flight;
 import com.adminservice.model.Operator;
@@ -123,11 +124,15 @@ public class FlightService {
         return !flightRepository.existsById(id);
     }
 
-    public void decrementSeatsAvailable(Integer flightId, int seatsToDecrement) {
+    public void decrementSeatsAvailable(ReserveSeatsDTO reserveSeatsDTO) {
+        var flightId = reserveSeatsDTO.getFlightId();
+        var seatsToDecrement = reserveSeatsDTO.getNumberOfSeats();
         Flight flight = flightRepository.findById(flightId)
-                .orElseThrow(() -> new IllegalArgumentException("Flight not found with id: " + flightId));
+                .orElseThrow(() -> new InvalidParameterException("Flight not found with id: " + flightId));
+        if (flight.getNumberSeatsAvailable() < seatsToDecrement) {
+            throw new InvalidParameterException("Number of seats available is less than the available seats");
+        }
         logger.info("Current available seats before decrement: {}", flight.getNumberSeatsAvailable());
-
         int currentSeats = flight.getNumberSeatsAvailable();
         if (currentSeats < seatsToDecrement) {
             throw new IllegalStateException("Not enough available seats to decrement");
@@ -136,20 +141,5 @@ public class FlightService {
         flight.setNumberSeatsAvailable(currentSeats - seatsToDecrement);
         flightRepository.save(flight);
         logger.info("Current available seats after decrement: {}", flight.getNumberSeatsAvailable());
-
     }
-
-    public boolean hasEnoughSeatsAvailable(int flightId, int seats) {
-        Flight flight = flightRepository.findById(flightId)
-                .orElseThrow(() -> new IllegalArgumentException("Flight not found with id: " + flightId));
-        logger.info("Current available seats before decrement: {}", flight.getNumberSeatsAvailable());
-        int currentSeats = flight.getNumberSeatsAvailable();
-        if (currentSeats < seats) {
-            return false;
-        }
-        return true;
-
-    }
-
-
 }

@@ -2,33 +2,22 @@ package com.example.BookingServiceUpdated.dto;
 
 import java.time.LocalDate;
 
-public class BookingDTO {
+public class CompressedBookingDTO {
 
-    private String id;
     private Integer flightId;
     private String userName;
     //private LocalDate bookingDate;
     private Double price;
     private Integer numberOfSeats;
     // Constructors
-    public BookingDTO() {}
+    public CompressedBookingDTO() {}
 
-    public BookingDTO(String id, Integer flightId, String userName, LocalDate bookingDate, Double price, Integer numberOfSeats) {
-        this.id = id;
+    public CompressedBookingDTO(Integer flightId, String userName, LocalDate bookingDate, Double price, Integer numberOfSeats) {
         this.flightId = flightId;
         this.userName = userName;
         //this.bookingDate = bookingDate;
         this.price = price;
         this.numberOfSeats = numberOfSeats;
-    }
-
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public Integer getFlightId() {
@@ -46,14 +35,6 @@ public class BookingDTO {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-
-//    public LocalDate getBookingDate() {
-//        return bookingDate;
-//    }
-//
-//    public void setBookingDate(LocalDate bookingDate) {
-//        this.bookingDate = bookingDate;
-//    }
 
     public Double getPrice() {
         return price;
