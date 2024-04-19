@@ -43,6 +43,7 @@ public class KafkaConsumerService {
             CheckStatusDTO adminStatusDTO = objectMapper.readValue(record.value(), CheckStatusDTO.class);
             if (!adminStatusDTO.getStatus()) {
                 bookingService.sendNotification(adminStatusDTO.getBookingId(), "Error at payment.", true);
+                return;
             }
             bookingService.sendNotification(adminStatusDTO.getBookingId(), "All good.", false);
         } catch (Exception e) {
