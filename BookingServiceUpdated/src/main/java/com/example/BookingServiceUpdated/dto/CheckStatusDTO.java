@@ -1,14 +1,14 @@
-package com.adminservice.dto;
+package com.example.BookingServiceUpdated.dto;
 
-public class BookingAdminStatusDTO {
+public class CheckStatusDTO {
 
     private String bookingId;
     private Boolean status;
 
-    public BookingAdminStatusDTO() {
+    public CheckStatusDTO() {
     }
 
-    public BookingAdminStatusDTO(String bookingId, Boolean status) {
+    public CheckStatusDTO(String bookingId, Boolean status) {
         this.bookingId = bookingId;
         this.status = status;
     }

@@ -1,6 +1,5 @@
 package com.example.BookingServiceUpdated.mapper;
 
-import com.example.BookingServiceUpdated.dto.BookingDTO;
 import com.example.BookingServiceUpdated.dto.BookingPaymentDTO;
 import com.example.BookingServiceUpdated.model.Booking;
 import com.example.BookingServiceUpdated.model.Operator;
@@ -14,7 +13,7 @@ public class BookingPaymentMapper {
         }
 
         BookingPaymentDTO bookingPayemntDTO = new BookingPaymentDTO();
-        bookingPayemntDTO.setId(booking.getId());
+        bookingPayemntDTO.setBookingId(booking.getId());
         bookingPayemntDTO.setPrice(booking.getPrice());
         bookingPayemntDTO.setIban(operator.getIban());
 

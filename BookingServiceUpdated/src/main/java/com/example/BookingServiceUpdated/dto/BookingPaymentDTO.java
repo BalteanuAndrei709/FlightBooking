@@ -1,27 +1,25 @@
 package com.example.BookingServiceUpdated.dto;
 
-import com.example.BookingServiceUpdated.model.BookingStatus;
-
 public class BookingPaymentDTO {
-    private String id;
+    private String bookingId;
     private Double price;
     private String iban;
 
     public BookingPaymentDTO() {
     }
 
-    public BookingPaymentDTO(String id, Double price, String iban) {
-        this.id = id;
+    public BookingPaymentDTO(String bookingId, Double price, String iban) {
+        this.bookingId = bookingId;
         this.price = price;
         this.iban = iban;
     }
 
-    public String getId() {
-        return id;
+    public String getBookingId() {
+        return bookingId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
     }
 
     public Double getPrice() {

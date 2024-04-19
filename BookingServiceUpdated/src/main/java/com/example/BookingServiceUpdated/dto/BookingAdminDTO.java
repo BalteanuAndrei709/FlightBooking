@@ -1,18 +1,18 @@
 package com.example.BookingServiceUpdated.dto;
 
-public class ReserveSeatsDTO {
+public class BookingAdminDTO {
 
     private String bookingId;
     private Integer flightId;
     private int numberOfSeats;
 
-    public ReserveSeatsDTO(String bookingId, int numberOfSeats, Integer flightId) {
+    public BookingAdminDTO(String bookingId, int numberOfSeats, Integer flightId) {
         this.flightId = flightId;
         this.bookingId = bookingId;
         this.numberOfSeats = numberOfSeats;
     }
 
-    public ReserveSeatsDTO() {}
+    public BookingAdminDTO() {}
 
     public String getBookingId() {
         return bookingId;

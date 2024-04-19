@@ -23,7 +23,7 @@ public class KafkaConsumerService {
         this.kafkaProducerService = kafkaProducerService;
     }
 
-    @KafkaListener(topics = "admin-reserve-seats", groupId = "admin-group")
+    @KafkaListener(topics = "admin-check", groupId = "admin-group")
     public void listen(ConsumerRecord<String, String> record) {
 
         try {
@@ -33,13 +33,13 @@ public class KafkaConsumerService {
             bookingAdminStatusDTO.setBookingId(reserveSeatsDTO.getBookingId());
             try {
                 flightService.decrementSeatsAvailable(reserveSeatsDTO);
-                bookingAdminStatusDTO.setBookingStatus(true);
+                bookingAdminStatusDTO.setStatus(true);
             }
             catch (Exception e){
-                bookingAdminStatusDTO.setBookingStatus(false);
+                bookingAdminStatusDTO.setStatus(false);
             }
             finally {
-                kafkaProducerService.sendMessage("admin-reserve-seats-status", bookingAdminStatusDTO);
+                kafkaProducerService.sendMessage("admin-check-status", bookingAdminStatusDTO);
             }
         } catch(Exception e) {
             logger.error("Received booking: {}", e.getMessage());

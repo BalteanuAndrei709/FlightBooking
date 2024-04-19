@@ -27,11 +27,9 @@ public class BookingController {
      * Handles the HTTP request for booking a flight.
      * @param bookingDTO
      * Contains information about both flight and the user which books it.
-     * @return
-     * The status of booking.
      */
     @PostMapping()
-    public Mono<ResponseEntity<Boolean>> addBooking(@RequestBody CompressedBookingDTO bookingDTO) {
-         return Mono.just(ResponseEntity.ok().body(bookingService.createBooking(bookingDTO)));
+    public void addBooking(@RequestBody CompressedBookingDTO bookingDTO) {
+         bookingService.createBooking(bookingDTO);
     }
 }

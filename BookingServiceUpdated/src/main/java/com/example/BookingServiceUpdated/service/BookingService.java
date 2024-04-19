@@ -1,43 +1,40 @@
 package com.example.BookingServiceUpdated.service;
 
-import com.example.BookingServiceUpdated.dto.BookingAdminStatusDTO;
+import com.example.BookingServiceUpdated.dto.BookingAdminDTO;
+import com.example.BookingServiceUpdated.dto.BookingPaymentDTO;
 import com.example.BookingServiceUpdated.dto.CompressedBookingDTO;
-import com.example.BookingServiceUpdated.dto.ReserveSeatsDTO;
+import com.example.BookingServiceUpdated.dto.NotificationMessageDTO;
 import com.example.BookingServiceUpdated.kafka.producer.KafkaProducerService;
 import com.example.BookingServiceUpdated.mapper.BookingMapper;
 import com.example.BookingServiceUpdated.model.Booking;
-import com.example.BookingServiceUpdated.model.BookingChecks;
-import com.example.BookingServiceUpdated.repository.BookingChecksRepository;
+import com.example.BookingServiceUpdated.model.Flight;
+import com.example.BookingServiceUpdated.model.Operator;
 import com.example.BookingServiceUpdated.repository.BookingRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.BookingServiceUpdated.repository.FlightRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.*;
 
 @Service
 public class BookingService {
 
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private BookingRepository bookingRepository;
-    private BookingChecksRepository bookingChecksRepository;
-    private BookingMapper bookingMapper;
-    private KafkaProducerService kafkaProducerService;
-    private static final Logger logger = LoggerFactory.getLogger(BookingService.class);
+    private final BookingRepository bookingRepository;
+    private final FlightRepository flightRepository;
+    private final BookingMapper bookingMapper;
+    private final KafkaProducerService kafkaProducerService;
 
     @Autowired
     public BookingService(BookingRepository bookingRepository,
-                          BookingChecksRepository bookingChecksRepository,
+                          FlightRepository flightRepository,
                           BookingMapper bookingMapper,
                           KafkaProducerService kafkaProducerService) {
         this.bookingRepository = bookingRepository;
         this.bookingMapper = bookingMapper;
         this.kafkaProducerService = kafkaProducerService;
-        this.bookingChecksRepository = bookingChecksRepository;
+        this.flightRepository = flightRepository;
     }
 
     /**
@@ -49,51 +46,72 @@ public class BookingService {
      * The information about the booking and the user which books the flight.
      */
     @Transactional
-    public boolean createBooking(CompressedBookingDTO bookingDTO) {
-        Booking booking = bookingMapper.toEntity(bookingDTO);
-        booking.setBookingChecks(new BookingChecks());
+    public void createBooking(CompressedBookingDTO bookingDTO) {
+        Optional<Flight> flight = flightRepository.findById(bookingDTO.getFlightId());
+        if(flight.isEmpty()){
+            throw new RuntimeException("No flight with id " + bookingDTO.getFlightId());
+        }
+        Booking booking = bookingMapper.toEntity(bookingDTO, flight.get());
         booking = bookingRepository.save(booking).block();
+        sendForAdminCheck(Objects.requireNonNull(booking));
+    }
 
-        boolean reserved = reserveSeats(Objects.requireNonNull(booking));
-        return reserved;
+    /**
+     * Sends trough kafka a BookingPaymentDTO in order to complete the payment.
+     * @param bookingId
+     */
+    public void sendForPaymentCheck(String bookingId){
+        BookingPaymentDTO bookingPaymentDTO = createBookingPaymentDTO(bookingId);
+        kafkaProducerService.sendMessage("payment-check", bookingPaymentDTO);
+    }
+
+    /**
+     * Creates a BookingPaymentDTO from the bookingId. The DTO will be sent trough kafka for processing
+     * the payment.
+     * @param bookingId
+     * The id of the booking which will be used for retrieving information needed for payment.
+     * @return
+     * An instance of BookingPaymentDTO.
+     */
+    public BookingPaymentDTO createBookingPaymentDTO(String bookingId){
+        Booking booking = bookingRepository.findById(bookingId).block();
+        if(booking == null){
+            throw new RuntimeException("No booking found with id " + bookingId);
+        }
+        Optional<Flight> flight = flightRepository.findById(booking.getFlightId());
+        if(flight.isEmpty()){
+            throw new RuntimeException("No flight with id " + booking.getFlightId());
+        }
+        Operator operator = flight.get().getOperator();
+        return new BookingPaymentDTO(
+                bookingId, booking.getPrice(), operator.getIban()
+        );
     }
 
     /**
      * Method that will send the message to Admin Service, which will check if there are enough
      * available seats. It will also wait for the response of this check.
      * @param booking
+     * The information about booking.
      */
-    private boolean reserveSeats(Booking booking) {
-        ReserveSeatsDTO reserveSeatsDTO = bookingMapper.entityToReserveSeatsDTO(booking);
-        kafkaProducerService.sendMessage("admin-reserve-seats", reserveSeatsDTO);
-        return waitForAdminStatus(reserveSeatsDTO.getBookingId());
+    private void sendForAdminCheck(Booking booking) {
+        BookingAdminDTO bookingAdminDTO = bookingMapper.entityToBookingAdminDTO(booking);
+        kafkaProducerService.sendMessage("admin-check", bookingAdminDTO);
     }
 
-    private Boolean waitForAdminStatus(String bookingId){
-        try {
-            CompletableFuture<Boolean> future = new CompletableFuture<>();
-            scheduler.scheduleAtFixedRate(() -> {
-                Booking booking = bookingRepository.findById(bookingId).block();
-                if (booking != null && booking.getBookingChecks().getAdminCheck()) {
-                    future.complete(true);
-                }
-            }, 0, 500, TimeUnit.MILLISECONDS);
-            return future.get(10, TimeUnit.SECONDS);
+    /**
+     * Sends trough kafka a Notification regarding the failure for reserving tickets.
+     * @param bookingId
+     */
+    public void sendNotification(String bookingId, String message, Boolean error) {
+        Booking booking = bookingRepository.findById(bookingId).block();
+        if(booking == null){
+            throw new RuntimeException("No booking found with id " + bookingId);
         }
-        catch (Exception e) {
-            return false;
-        }
-    }
-
-    public void updateBookingChecks(BookingAdminStatusDTO adminStatusDTO) {
-        Optional<Booking> bookingOptional =
-                bookingRepository.findById(adminStatusDTO.getBookingId()).blockOptional();
-        if (bookingOptional.isEmpty()) {
-            throw new RuntimeException("No booking found with id " + adminStatusDTO.getBookingId());
-        }
-        var booking = bookingOptional.get();
-        booking.getBookingChecks().setAdminCheck(adminStatusDTO.getBookingStatus());
-        bookingRepository.save(booking).subscribe();
+        NotificationMessageDTO notificationMessageDTO = new NotificationMessageDTO(
+                message, error, booking.getEmail()
+        );
+        kafkaProducerService.sendMessage("notification", notificationMessageDTO);
     }
 }
 
