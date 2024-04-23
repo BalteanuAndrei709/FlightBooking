@@ -1,6 +1,7 @@
 package com.payment.paymentservice.service;
 
 import com.payment.paymentservice.exception.OrderNotPayedException;
+import com.payment.paymentservice.mock.BookingMock;
 import com.payment.paymentservice.model.*;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
@@ -36,7 +37,7 @@ public class PayPalService {
 
     }
 
-    public Mono<PaymentOrder> createPayment(Double payAmount, String iban) {
+    public Mono<PaymentOrder> createPayment(BookingMock mock) {
 
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
@@ -46,7 +47,7 @@ public class PayPalService {
          */
         AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown();
         amountWithBreakdown.currencyCode("EUR");
-        amountWithBreakdown.value(payAmount.toString());
+        amountWithBreakdown.value(mock.getAmount().toString());
 
         /**
          * PurchaseUnitRequest = The most important attributes are amount (required) and array of items.
@@ -81,7 +82,7 @@ public class PayPalService {
         orderRequest.applicationContext(applicationContext);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
 
-        Mono<BusinessPlatform> mono = businessService.findByIban(iban);
+        Mono<BusinessPlatform> mono = businessService.findByIban(mock.getIban());
         // aici se poate baga o verificare daca in mono avem ceva
 
         Mono<PaymentOrder> paymentMono = mono
@@ -102,17 +103,18 @@ public class PayPalService {
                                 .orElseThrow(NoSuchElementException::new)
                                 .href();
 
-                        //System.out.println(order.status());
-
                         OrderStatus orderStatus = new OrderStatus();
                         orderStatus.setOrderId(order.id());
                         orderStatus.setStatus("INITIATED");
                         orderStatus.setCreationTime(System.currentTimeMillis());
+                        orderStatus.setBookingId(mock.getBookingId());
+                        orderStatus.setBusinessIban(mock.getIban());
                         orderStatus.setExpirationTime(orderStatus.getCreationTime() + AVAILABLE_TIME);
 
                         orderService.addOrder(orderStatus).subscribe();
 
-                        PaymentOrder paymentOrder = new PaymentOrder("success", order.id(), redirectUrl);
+                        PaymentOrder paymentOrder = new PaymentOrder("created", order.id(), redirectUrl);
+                        Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + redirectUrl);
                         return Mono.just(paymentOrder);
 
                     } catch (Exception e) {
@@ -123,50 +125,6 @@ public class PayPalService {
                     }
                 });
         return paymentMono;
-    }
-
-    public Mono<CompletedOrder> completePayment(String token, String iban) {
-
-        OrdersCaptureRequest ordersCaptureRequest = new OrdersCaptureRequest(token);
-        Mono<BusinessPlatform> monoBusiness = businessService.findByIban(iban);
-
-        Mono<CompletedOrder> completedOrderMono = monoBusiness.flatMap(event -> {
-
-            PayPalEnvironment environment = new PayPalEnvironment.Sandbox(event.getClientId(), event.getClientSecret());
-            PayPalHttpClient payPalHttpClient = new PayPalHttpClient(environment);
-            Order order = new Order();
-
-            try {
-                HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCaptureRequest);
-                order = httpResponse.result();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-
-            if (order.status() != null) { // in cazul asta va avea mereu COMPLETED daca plata a fost efectuata cu succes
-                final String orderId = order.id();
-                Mono<OrderStatus> mono = orderService.findByOrderId(orderId);
-                System.out.println(order.status());
-
-                mono.subscribe(e -> {
-                    e.setStatus("SUCCESS");
-                    orderService.updateOrder(e, orderId).subscribe();
-                });
-                return Mono.just(new CompletedOrder(order.status(), token));
-            } else {
-                System.out.println(order.status());
-                Mono<OrderStatus> mono = orderService.findByOrderId(token);
-
-                mono.subscribe(e -> {
-                    e.setStatus("CANCELED");
-                    orderService.updateOrder(e, e.getOrderId()).subscribe();
-                });
-                return Mono.just(new CompletedOrder("canceled", token));
-            }
-
-        });
-
-        return completedOrderMono;
     }
 
     /**
@@ -204,6 +162,12 @@ public class PayPalService {
         return orderMono;
     }
 
+    /**
+     * @param token represents the orderId that was generated by PayPal during the creation of the order
+     * @param iban  represents the operator from which we buy ticket.
+     *              <p>
+     *              This method is used to finalise the payment process by capturing the order that was paid by the customer.
+     */
     public Mono<CompletedOrder> captureOrder(String token, String iban) {
 
         OrdersCaptureRequest ordersCaptureRequest = new OrdersCaptureRequest(token);
