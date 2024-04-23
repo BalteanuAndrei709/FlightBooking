@@ -10,4 +10,6 @@ public interface OrderRepository extends ReactiveMongoRepository<OrderStatus, St
 
     Mono<OrderStatus> findByOrderId(String orderId);
 
+    Mono<OrderStatus> findByBookingId(String bookingId);
+
 }

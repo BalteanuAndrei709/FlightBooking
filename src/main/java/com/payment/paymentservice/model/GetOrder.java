@@ -1,40 +1,32 @@
 package com.payment.paymentservice.model;
 
-import com.paypal.orders.Payee;
-import com.paypal.orders.Payer;
-
 import java.io.Serializable;
 
 /**
  * Model used to test the capturing of the payee and payer information
  */
 public class GetOrder implements Serializable {
-    Payee payee;
     String payerId;
     String payerEmail;
     String payeeId;
     String payeeEmail;
-    Payer payer;
+    String orderStatus;
 
-    public Payee getPayee() {
-        return payee;
+
+    public GetOrder(String payerId, String payerEmail, String payeeId, String payeeEmail, String orderStatus) {
+        this.payerId = payerId;
+        this.payerEmail = payerEmail;
+        this.payeeId = payeeId;
+        this.payeeEmail = payeeEmail;
+        this.orderStatus = orderStatus;
     }
 
-    public void setPayee(Payee payee) {
-        this.payee = payee;
+    public String getOrderStatus() {
+        return orderStatus;
     }
 
-    public Payer getPayer() {
-        return payer;
-    }
-
-    public void setPayer(Payer payer) {
-        this.payer = payer;
-    }
-
-    public GetOrder(Payee payee, Payer payer) {
-        this.payee = payee;
-        this.payer = payer;
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     public GetOrder() {

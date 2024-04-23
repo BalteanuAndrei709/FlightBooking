@@ -1,24 +1,22 @@
 package com.payment.paymentservice.service;
 
+import com.payment.paymentservice.controller.ViewController;
 import com.payment.paymentservice.exception.OrderNotPayedException;
+import com.payment.paymentservice.mock.BookingMock;
 import com.payment.paymentservice.model.*;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -48,7 +46,7 @@ public class PayPalService {
 
     }
 
-    public Mono<PaymentOrder> createPayment(Double payAmount, String iban) {
+    public Mono<PaymentOrder> createPayment(BookingMock mock) {
 
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
@@ -58,7 +56,7 @@ public class PayPalService {
          */
         AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown();
         amountWithBreakdown.currencyCode("EUR");
-        amountWithBreakdown.value(payAmount.toString());
+        amountWithBreakdown.value(mock.getAmount().toString());
 
         /**
          * PurchaseUnitRequest = The most important attributes are amount (required) and array of items.
@@ -93,7 +91,7 @@ public class PayPalService {
         orderRequest.applicationContext(applicationContext);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
 
-        Mono<BusinessPlatform> mono = businessService.findByIban(iban);
+        Mono<BusinessPlatform> mono = businessService.findByIban(mock.getIban());
         // aici se poate baga o verificare daca in mono avem ceva
 
         Mono<PaymentOrder> paymentMono = mono
@@ -118,6 +116,8 @@ public class PayPalService {
                         orderStatus.setOrderId(order.id());
                         orderStatus.setStatus("INITIATED");
                         orderStatus.setCreationTime(System.currentTimeMillis());
+                        orderStatus.setBookingId(mock.getBookingId());
+                        orderStatus.setBusinessIban(mock.getIban());
                         orderStatus.setExpirationTime(orderStatus.getCreationTime() + AVAILABLE_TIME);
 
                         sendKafkaMessage(orderStatus);
@@ -125,6 +125,7 @@ public class PayPalService {
                         orderService.addOrder(orderStatus).subscribe();
 
                         PaymentOrder paymentOrder = new PaymentOrder("created", order.id(), redirectUrl);
+                        Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + redirectUrl);
                         return Mono.just(paymentOrder);
 
                     } catch (Exception e) {
@@ -199,14 +200,11 @@ public class PayPalService {
                 HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersGetRequest);
                 Order order = httpResponse.result();
                 GetOrder getOrderObj = new GetOrder();
-                getOrderObj.setPayee(order.purchaseUnits().get(0).payee());
-                getOrderObj.setPayer(order.payer());
-
-                getOrderObj.setPayerId(getOrderObj.getPayer().payerId());
-                getOrderObj.setPayerEmail(getOrderObj.getPayer().email());
-
-                getOrderObj.setPayeeId(getOrderObj.getPayee().merchantId());
-                getOrderObj.setPayeeEmail(getOrderObj.getPayee().email());
+      /*          getOrderObj.setPayerId(order.payer().payerId());
+                getOrderObj.setPayerEmail(order.payer().email());
+                getOrderObj.setPayeeId(order.purchaseUnits().get(0).payee().merchantId());
+                getOrderObj.setPayeeEmail(order.purchaseUnits().get(0).payee().email());*/
+                getOrderObj.setOrderStatus(order.status());
 
                 return Mono.just(getOrderObj);
             } catch (IOException e) {
@@ -260,6 +258,20 @@ public class PayPalService {
                 new ProducerRecord<>(TOPIC, key, value);
         producer.send(producerRecord);
         producer.close();
+    }
+
+    public void test(BookingMock mock) {
+
+        createPayment(mock).subscribe();
+
+
+      /*  Mono<OrderStatus> orderStatusMono = orderService.
+        getOrder(e.getOrderId(), mock.getIban()).doOnNext(event -> {
+            if (event.getOrderStatus().equals("APPROVED")) {
+                captureOrder(e.getOrderId(), mock.getIban()).subscribe();
+            }
+        }).subscribe();*/
+
     }
 
 }

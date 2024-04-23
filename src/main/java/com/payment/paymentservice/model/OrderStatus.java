@@ -16,6 +16,8 @@ public class OrderStatus {
     private String status;
     private Long creationTime;
     private Long expirationTime;
+    private String bookingId;
+    private String businessIban;
 
     public Long getExpirationTime() {
         return expirationTime;
@@ -57,12 +59,30 @@ public class OrderStatus {
         this.status = status;
     }
 
-    public OrderStatus(String id, String orderId, String status, Long creationTime, Long expirationTime) {
+    public String getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public String getBusinessIban() {
+        return businessIban;
+    }
+
+    public void setBusinessIban(String businessIban) {
+        this.businessIban = businessIban;
+    }
+
+    public OrderStatus(String id, String orderId, String status, Long creationTime, Long expirationTime, String bookingId, String businessIban) {
         this.id = id;
         this.orderId = orderId;
         this.status = status;
         this.creationTime = creationTime;
         this.expirationTime = expirationTime;
+        this.bookingId = bookingId;
+        this.businessIban = businessIban;
     }
 
     public OrderStatus() {
