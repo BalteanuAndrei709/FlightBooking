@@ -1,6 +1,7 @@
-package com.example.BookingServiceUpdated.dto;
+package com.payment.paymentservice.dto;
 
-import com.example.BookingServiceUpdated.model.BookingStatus;
+
+import com.payment.paymentservice.model.BookingStatus;
 
 public class BookingStatusDTO {
 

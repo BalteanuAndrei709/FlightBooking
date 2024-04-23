@@ -18,6 +18,7 @@ public interface OperatorRepository extends JpaRepository<Operator, Integer> {
     Optional<Operator> findByName(String name);
     boolean existsByName(String name);
     boolean existsByIban(String iban);
+
     boolean existsByApiSearch(String apiSearch);
     @Query("SELECT DISTINCT o FROM Operator o JOIN o.allFlights f WHERE f.leaving = :leaving AND " +
             "f.destination = :destination")
