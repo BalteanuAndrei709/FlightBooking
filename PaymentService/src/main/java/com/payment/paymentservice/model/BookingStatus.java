@@ -1,4 +1,4 @@
-package com.adminservice.model;
+package com.payment.paymentservice.model;
 
 
 public enum BookingStatus {

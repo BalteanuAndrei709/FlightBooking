@@ -4,16 +4,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection = "bookings")
+@Document(value = "bookings")
 public class Booking {
 
     @Id
     private String id;
 
-    @Field("user_name")
-    private String userName;
+    @Field("email")
+    private String email;
 
-    @Field("flight_id")
     private Integer flightId;
 
     @Field("number_of_seats")
@@ -23,9 +22,7 @@ public class Booking {
     private Double price;
 
     @Field("booking_status")
-    private BookingStatus bookingStatus;
-
-    // Getters and Setters
+    private BookingStatus bookingStatus;  // Assume BookingStatus is an enum or another class
 
     public String getId() {
         return id;
@@ -35,12 +32,12 @@ public class Booking {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Integer getFlightId() {
@@ -51,20 +48,20 @@ public class Booking {
         this.flightId = flightId;
     }
 
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
     public Integer getNumberOfSeats() {
         return numberOfSeats;
     }
 
     public void setNumberOfSeats(Integer numberOfSeats) {
         this.numberOfSeats = numberOfSeats;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     public BookingStatus getBookingStatus() {
