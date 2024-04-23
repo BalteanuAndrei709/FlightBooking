@@ -24,6 +24,9 @@ public class OrderService {
         return orderRepository.findByOrderId(orderId);
     }
 
+    public Mono<OrderStatus> findByBookingId(String bookingId) {
+        return orderRepository.findByBookingId(bookingId);
+    }
 
     public Mono<OrderStatus> updateOrder(OrderStatus orderStatus, String orderId) {
         Mono<OrderStatus> existingOrderStatus = orderRepository.findByOrderId(orderId);
