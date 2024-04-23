@@ -39,64 +39,21 @@ public class PayPalService {
 
     public Mono<PaymentOrder> createPayment(BookingMock mock) {
 
-        OrderRequest orderRequest = new OrderRequest();
-        orderRequest.checkoutPaymentIntent("CAPTURE");
-
-        /**
-         * AmountWithBreakdown = breakdown of the amount in the value of the item, taxes, shipping, discount, etc
-         */
-        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown();
-        amountWithBreakdown.currencyCode("EUR");
-        amountWithBreakdown.value(mock.getAmount().toString());
-
-        /**
-         * PurchaseUnitRequest = The most important attributes are amount (required) and array of items.
-         */
-        PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest();
-        purchaseUnitRequest.amountWithBreakdown(amountWithBreakdown);
-
-        Money money = new Money();
-        money.currencyCode(amountWithBreakdown.currencyCode());
-        money.value(amountWithBreakdown.value());
-
-        AmountBreakdown amountBreakdown = new AmountBreakdown();
-        amountBreakdown.itemTotal(money);
-        amountWithBreakdown.amountBreakdown(amountBreakdown);
-
-        Item item = new Item();
-        item.category("DIGITAL_GOODS");
-        item.quantity("1");
-        item.name("Flight from X to Y");
-        item.description("Flight");
-        item.unitAmount(money);
-
-        purchaseUnitRequest.items(List.of(item));
-        purchaseUnitRequest.amountWithBreakdown().amountBreakdown().itemTotal(money);
-        orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
-
-        ApplicationContext applicationContext = new ApplicationContext();
-        applicationContext.returnUrl(returnUrl);
-        applicationContext.cancelUrl(cancelUrl);
-        applicationContext.userAction("PAY_NOW");
-
-        orderRequest.applicationContext(applicationContext);
+        OrderRequest orderRequest = createOrder(mock);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
 
         Mono<BusinessPlatform> mono = businessService.findByIban(mock.getIban());
-        // aici se poate baga o verificare daca in mono avem ceva
-
         Mono<PaymentOrder> paymentMono = mono
                 .flatMap(event -> {
-
+                    /**
+                     * Genereate the payPalHttpClient based on the clientId and clientSecret fetched using the iban
+                     */
                     PayPalEnvironment environment = new PayPalEnvironment.Sandbox(event.getClientId(), event.getClientSecret());
                     PayPalHttpClient payPalHttpClient = new PayPalHttpClient(environment);
                     try {
                         HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
                         Order order = orderHttpResponse.result();
 
-                        /**
-                         * The payer (the customer) can be linked with the iban or something from the booking topic (kafka) or database.
-                         */
                         String redirectUrl = order.links().stream()
                                 .filter(link -> link.rel().equals("approve"))
                                 .findFirst()
@@ -144,16 +101,7 @@ public class PayPalService {
             try {
                 HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersGetRequest);
                 Order order = httpResponse.result();
-                GetOrder getOrderObj = new GetOrder();
-                getOrderObj.setPayee(order.purchaseUnits().get(0).payee());
-                getOrderObj.setPayer(order.payer());
-
-                getOrderObj.setPayerId(getOrderObj.getPayer().payerId());
-                getOrderObj.setPayerEmail(getOrderObj.getPayer().email());
-
-                getOrderObj.setPayeeId(getOrderObj.getPayee().merchantId());
-                getOrderObj.setPayeeEmail(getOrderObj.getPayee().email());
-
+                GetOrder getOrderObj = buildGetOrder(order);
                 return Mono.just(getOrderObj);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -202,4 +150,61 @@ public class PayPalService {
         return resultMono;
     }
 
+    private OrderRequest createOrder(BookingMock mock) {
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.checkoutPaymentIntent("CAPTURE");
+
+        /**
+         * AmountWithBreakdown = breakdown of the amount in the value of the item, taxes, shipping, discount, etc
+         */
+        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown();
+        amountWithBreakdown.currencyCode("EUR");
+        amountWithBreakdown.value(mock.getAmount().toString());
+
+        /**
+         * PurchaseUnitRequest = The most important attributes are amount (required) and array of items.
+         */
+        PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest();
+        purchaseUnitRequest.amountWithBreakdown(amountWithBreakdown);
+
+        Money money = new Money();
+        money.currencyCode(amountWithBreakdown.currencyCode());
+        money.value(amountWithBreakdown.value());
+
+        AmountBreakdown amountBreakdown = new AmountBreakdown();
+        amountBreakdown.itemTotal(money);
+        amountWithBreakdown.amountBreakdown(amountBreakdown);
+
+        Item item = new Item();
+        item.category("DIGITAL_GOODS");
+        item.quantity("1");
+        item.name("Flight from X to Y");
+        item.description("Flight");
+        item.unitAmount(money);
+
+        purchaseUnitRequest.items(List.of(item));
+        purchaseUnitRequest.amountWithBreakdown().amountBreakdown().itemTotal(money);
+        orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
+
+        ApplicationContext applicationContext = new ApplicationContext();
+        applicationContext.returnUrl(returnUrl);
+        applicationContext.cancelUrl(cancelUrl);
+        applicationContext.userAction("PAY_NOW");
+
+        orderRequest.applicationContext(applicationContext);
+        return orderRequest;
+    }
+
+    private GetOrder buildGetOrder(Order order) {
+        GetOrder getOrderObj = new GetOrder();
+        getOrderObj.setPayee(order.purchaseUnits().get(0).payee());
+        getOrderObj.setPayer(order.payer());
+
+        getOrderObj.setPayerId(getOrderObj.getPayer().payerId());
+        getOrderObj.setPayerEmail(getOrderObj.getPayer().email());
+
+        getOrderObj.setPayeeId(getOrderObj.getPayee().merchantId());
+        getOrderObj.setPayeeEmail(getOrderObj.getPayee().email());
+        return getOrderObj;
+    }
 }
