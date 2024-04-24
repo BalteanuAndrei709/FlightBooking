@@ -111,7 +111,7 @@ public class BookingService {
         NotificationMessageDTO notificationMessageDTO = new NotificationMessageDTO(
                 message, error, booking.getEmail()
         );
-        kafkaProducerService.sendMessage("notification", notificationMessageDTO);
+        kafkaProducerService.sendMessage("notifications", notificationMessageDTO);
     }
 }
 
