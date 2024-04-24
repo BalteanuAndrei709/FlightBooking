@@ -1,6 +1,9 @@
 package com.payment.paymentservice.service;
 
+import com.payment.paymentservice.dto.BookingPaymentDTO;
+import com.payment.paymentservice.dto.CheckStatusDTO;
 import com.payment.paymentservice.exception.OrderNotPayedException;
+import com.payment.paymentservice.kafka.producer.KafkaProducerService;
 import com.payment.paymentservice.mock.BookingMock;
 import com.payment.paymentservice.model.*;
 import com.paypal.core.PayPalEnvironment;
@@ -15,6 +18,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
 public class PayPalService {
@@ -23,21 +27,23 @@ public class PayPalService {
     private final String cancelUrl;
     private final OrderService orderService;
     private final BusinessPlatformService businessService;
+    private final KafkaProducerService kafkaProducerService;
     private final long AVAILABLE_TIME = 10000 * 6; // 1 minutes
 
     @Autowired
     public PayPalService(@Value("${return.url}") String returnUrl,
                          @Value("${cancel.url}") String cancelUrl,
                          OrderService orderService,
-                         BusinessPlatformService businessService) {
+                         BusinessPlatformService businessService,
+                         KafkaProducerService kafkaProducerService) {
         this.returnUrl = returnUrl;
         this.cancelUrl = cancelUrl;
         this.orderService = orderService;
         this.businessService = businessService;
-
+        this.kafkaProducerService = kafkaProducerService;
     }
 
-    public Mono<PaymentOrder> createPayment(BookingMock mock) {
+    public Mono<PaymentOrder> createPayment(BookingPaymentDTO mock) {
 
         OrderRequest orderRequest = createOrder(mock);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
@@ -124,9 +130,12 @@ public class PayPalService {
         long callTime = System.currentTimeMillis();
 
         Mono<CompletedOrder> resultMono = orderStatusMono.flatMap(orderStatus -> {
-
+            CheckStatusDTO checkStatusDTO = new CheckStatusDTO();
             if (callTime > orderStatus.getExpirationTime() && !orderStatus.getStatus().equals("SUCCESS")) {
                 orderStatus.setStatus("CANCELED");
+                checkStatusDTO.setBookingId(orderStatus.getBookingId());
+                checkStatusDTO.setStatus(false);
+                kafkaProducerService.sendMessage(checkStatusDTO);
                 orderService.updateOrder(orderStatus, token).subscribe();
                 return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getId()));
             } else {
@@ -139,10 +148,14 @@ public class PayPalService {
                         Order order = httpResponse.result();
                         orderStatus.setStatus("SUCCESS");
                         orderService.updateOrder(orderStatus, order.id()).subscribe();
+                        checkStatusDTO.setBookingId(orderStatus.getBookingId());
+                        checkStatusDTO.setStatus(true);
+                        kafkaProducerService.sendMessage(checkStatusDTO);
                     } catch (IOException e) {
                         throw new OrderNotPayedException("Payment with id " + token + " was not paid by following the given link");
                     }
                 });
+
                 return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getId()));
             }
         });
@@ -150,7 +163,7 @@ public class PayPalService {
         return resultMono;
     }
 
-    private OrderRequest createOrder(BookingMock mock) {
+    private OrderRequest createOrder(BookingPaymentDTO mock) {
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
 
@@ -159,7 +172,7 @@ public class PayPalService {
          */
         AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown();
         amountWithBreakdown.currencyCode("EUR");
-        amountWithBreakdown.value(mock.getAmount().toString());
+        amountWithBreakdown.value(mock.getPrice().toString());
 
         /**
          * PurchaseUnitRequest = The most important attributes are amount (required) and array of items.

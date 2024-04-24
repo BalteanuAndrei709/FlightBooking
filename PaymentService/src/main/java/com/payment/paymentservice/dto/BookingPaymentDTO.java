@@ -1,22 +1,25 @@
 package com.payment.paymentservice.dto;
 
 public class BookingPaymentDTO {
-    private String id;
+    private String bookingId;
     private Double price;
+    private String iban;
 
-    public BookingPaymentDTO(){}
+    public BookingPaymentDTO() {
+    }
 
-    public BookingPaymentDTO(String id, Double price) {
-        this.id = id;
+    public BookingPaymentDTO(String bookingId, Double price, String iban) {
+        this.bookingId = bookingId;
         this.price = price;
+        this.iban = iban;
     }
 
-    public String getId() {
-        return id;
+    public String getBookingId() {
+        return bookingId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
     }
 
     public Double getPrice() {
@@ -25,5 +28,13 @@ public class BookingPaymentDTO {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public String getIban() {
+        return iban;
+    }
+
+    public void setIban(String iban) {
+        this.iban = iban;
     }
 }
