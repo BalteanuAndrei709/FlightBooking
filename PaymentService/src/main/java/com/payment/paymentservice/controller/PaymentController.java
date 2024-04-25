@@ -1,5 +1,7 @@
 package com.payment.paymentservice.controller;
 
+import com.payment.paymentservice.dto.BookingPaymentDTO;
+import com.payment.paymentservice.mock.BookingMock;
 import com.payment.paymentservice.model.CompletedOrder;
 import com.payment.paymentservice.model.GetOrder;
 import com.payment.paymentservice.model.PaymentOrder;
@@ -21,15 +23,14 @@ public class PaymentController {
     }
 
     @PostMapping("/init")
-    public Mono<PaymentOrder> createPayment(@RequestParam(name = "sum") Double sum,
-                                            @RequestParam(name = "iban") String iban) {
-        return payPalService.createPayment(sum, iban);
+    public Mono<PaymentOrder> createPayment(@RequestBody BookingPaymentDTO mock) {
+        return payPalService.createPayment(mock);
     }
 
     @PostMapping(value = "/capture")
     public Mono<CompletedOrder> completePayment(@RequestParam("token") String token,
                                                 @RequestParam(name = "iban") String iban) {
-        return payPalService.completePayment(token, iban);
+        return payPalService.captureOrder(token, iban);
     }
 
     @GetMapping(value = "/get")
