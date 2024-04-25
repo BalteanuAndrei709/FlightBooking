@@ -1,7 +1,7 @@
 package com.example.BookingServiceUpdated.service;
 
-import avro.BookingAdmin;
-import avro.BookingPayment;
+import com.example.BookingServiceUpdated.dto.BookingAdminDTO;
+import com.example.BookingServiceUpdated.dto.BookingPaymentDTO;
 import com.example.BookingServiceUpdated.dto.CompressedBookingDTO;
 import com.example.BookingServiceUpdated.dto.NotificationMessageDTO;
 import com.example.BookingServiceUpdated.kafka.producer.KafkaProducerService;
@@ -59,22 +59,21 @@ public class BookingService {
     /**
      * Sends trough kafka a BookingPaymentDTO in order to complete the payment.
      * @param bookingId
-     * The id of the booking.
      */
     public void sendForPaymentCheck(String bookingId){
-        BookingPayment bookingPayment = createBookingPaymentDTO(bookingId);
-        kafkaProducerService.sendMessage("payment-check", bookingPayment);
+        BookingPaymentDTO bookingPaymentDTO = createBookingPaymentDTO(bookingId);
+        kafkaProducerService.sendMessage("payment-check", bookingPaymentDTO);
     }
 
     /**
-     * Creates a BookingPayment from the bookingId. The avro object will be sent trough
-     * kafka for processing the payment.
+     * Creates a BookingPaymentDTO from the bookingId. The DTO will be sent trough kafka for processing
+     * the payment.
      * @param bookingId
      * The id of the booking which will be used for retrieving information needed for payment.
      * @return
-     * An instance of BookingPayment.
+     * An instance of BookingPaymentDTO.
      */
-    public BookingPayment createBookingPaymentDTO(String bookingId){
+    public BookingPaymentDTO createBookingPaymentDTO(String bookingId){
         Booking booking = bookingRepository.findById(bookingId).block();
         if(booking == null){
             throw new RuntimeException("No booking found with id " + bookingId);
@@ -84,7 +83,7 @@ public class BookingService {
             throw new RuntimeException("No flight with id " + booking.getFlightId());
         }
         Operator operator = flight.get().getOperator();
-        return new BookingPayment(
+        return new BookingPaymentDTO(
                 bookingId, booking.getPrice(), operator.getIban()
         );
     }
@@ -96,14 +95,13 @@ public class BookingService {
      * The information about booking.
      */
     private void sendForAdminCheck(Booking booking) {
-        BookingAdmin bookingAdmin = bookingMapper.entityToBookingAdmin(booking);
-        kafkaProducerService.sendMessage("admin-check", bookingAdmin);
+        BookingAdminDTO bookingAdminDTO = bookingMapper.entityToBookingAdminDTO(booking);
+        kafkaProducerService.sendMessage("admin-check", bookingAdminDTO);
     }
 
     /**
      * Sends trough kafka a Notification regarding the failure for reserving tickets.
      * @param bookingId
-     * The id of the booking.
      */
     public void sendNotification(String bookingId, String message, Boolean error) {
         Booking booking = bookingRepository.findById(bookingId).block();
@@ -113,7 +111,7 @@ public class BookingService {
         NotificationMessageDTO notificationMessageDTO = new NotificationMessageDTO(
                 message, error, booking.getEmail()
         );
-//        kafkaProducerService.sendMessage("notification", notificationMessageDTO);
+        kafkaProducerService.sendMessage("notifications", notificationMessageDTO);
     }
 }
 
