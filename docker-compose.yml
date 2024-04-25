@@ -78,12 +78,35 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_DB=admin_service
 
+  payment-service:
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - mongodb
+
+    build:
+      context: ./PaymentService
+    container_name: payment-service
+    ports:
+      - "8887:8887"
+    environment:
+      SERVER_PORT: 8887
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/payments?authSource=admin
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:9092,kafka3:9092
+      PAYPAL_MODE: sandbox
+      RETURN_URL: http://localhost:8887/payment/success
+      CANCEL_URL: http://localhost:8887/payment/cancel
+
+
   notification-service:
     depends_on:
       - mongodb
       - kafka1
       - kafka2
       - kafka3
+      - elasticsearch
+
     build:
       context: ./NotificationService
     container_name: notification-service
@@ -93,6 +116,29 @@ services:
       SERVER_PORT: 8000
       SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/notifications?authSource=admin
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:9092,kafka3:9092
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.20
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=docker-cluster
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - http.host=0.0.0.0
+    ports:
+      - "9200:9200"
+
+  kibana:
+    depends_on:
+      - elasticsearch
+    image: docker.elastic.co/kibana/kibana:7.17.20
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
 
   admin-service:
     depends_on:
@@ -223,7 +269,6 @@ services:
       SERVER_PORT: 8000
       SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/operator?authSource=admin
       OPERATOR_NAME: United Airlines
-
 
   operator-service-southwest-airlines:
     depends_on:

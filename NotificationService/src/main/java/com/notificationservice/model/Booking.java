@@ -2,30 +2,47 @@ package com.notificationservice.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.*;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDate;
 import java.util.Date;
 
 
-@Document("booking")
+@Document(indexName = "booking_audit")
 public class Booking {
 
     @Id
     private String id;
-    @Column(name = "user_name")
+  //  @Field(type = FieldType.Text, name = "user_name")
     private String userName;
-    @Column(name = "flight_id")
+   // @Field(type = FieldType.Integer, name = "flight_id")
     private Integer flightId;
-    @Column(name = "number_of_seats")
+   // @Field(type = FieldType.Integer, name = "number_of_seats")
     private Integer numberOfSeats;
+   // @Field(type = FieldType.Double, name = "price")
     private Double price;
-    @Column(name = "booking_status")
+   // @Field(type = FieldType.Text, name = "booking_status")
     private String bookingStatus;
-    @Column(name = "user_email")
+    //@Field(type = FieldType.Text, name = "user_email")
     private String userEmail;
-    @Column(name = "expiration_time")
+    //@Field(type = FieldType.Date, name = "expiration_date")
     private LocalDate expirationDate;
+
+    public Booking() {
+    }
+
+    public Booking(String id, String userName, Integer flightId, Integer numberOfSeats, Double price, String bookingStatus, String userEmail, LocalDate expirationDate) {
+        this.id = id;
+        this.userName = userName;
+        this.flightId = flightId;
+        this.numberOfSeats = numberOfSeats;
+        this.price = price;
+        this.bookingStatus = bookingStatus;
+        this.userEmail = userEmail;
+        this.expirationDate = expirationDate;
+    }
 
     public LocalDate getExpirationDate() {
         return expirationDate;
@@ -90,4 +107,5 @@ public class Booking {
     public void setPrice(Double price) {
         this.price = price;
     }
+
 }
