@@ -44,8 +44,8 @@ public class BookingHandlingService {
     }
 
     public void sendCompletedBookingEmail(String userEmail,Integer flightId, String bookingStatus){
-        String emailSubject = "Completed BookingDTO.";
-        String emailText = "Hello,\n\nYour BookingDTO has been confirmed. You will receive your booking ticket(s) soon!\n\nThank you!";
+        String emailSubject = "Completed Booking.";
+        String emailText = "Hello,\n\nYour Booking has been confirmed. You will receive your booking ticket(s) soon!\n\nThank you!";
         customNotificationBuilder(userEmail, emailSubject, emailText, flightId, bookingStatus);
 
     }
@@ -64,7 +64,7 @@ public class BookingHandlingService {
 
     private void sendInitializationEmail(String userEmail, LocalDate expirationDate, Integer flightId, String bookingStatus){
         String formattedExpirationTime = expirationDate.format(DateTimeFormatter.ofPattern("yy-MM-dd"));
-        String emailSubject = "Complete your BookingDTO!";
+        String emailSubject = "Complete your Booking!";
         String emailText = String.format(
                 "Hello,\n\nYour booking has been initialized. Please complete your payment by %s to avoid cancellation.\n\nThank you!",
                 formattedExpirationTime);
@@ -73,7 +73,7 @@ public class BookingHandlingService {
 
     private void sendCheckInEmail(String userEmail, LocalDate expirationDate, Integer flightId, String bookingStatus){
         String formattedExpirationTime = expirationDate.plusDays(7).format(DateTimeFormatter.ofPattern("yy-MM-dd"));
-        String emailSubject = "Check in your BookingDTO!";
+        String emailSubject = "Check in your Booking!";
         String emailText = String.format(
                 "Hello,\n\nYour booking has been completed. You can check in for free until %s.\n\nThank you!",
                 formattedExpirationTime);

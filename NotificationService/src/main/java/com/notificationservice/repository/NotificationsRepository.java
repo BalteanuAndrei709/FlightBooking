@@ -11,8 +11,11 @@ import java.util.Optional;
 @Repository
 public interface NotificationsRepository extends MongoRepository<Notification, String> {
 
-    Optional<Notification> findByRecipientIdAndAndBookingStatusAndStatus(Integer id, String bookingStatus, NotificationStatus status);
+    Optional<Notification> findByRecipientIdAndBookingStatusAndStatus(Integer id, String bookingStatus, NotificationStatus status);
+    Optional<Notification> findByRecipientIdAndStatus(Integer id, NotificationStatus status);
     List<Notification> findByStatus(NotificationStatus status);
+
+    Notification findByRecipientId(Integer id);
     void deleteByStatus(NotificationStatus status);
 
 }
