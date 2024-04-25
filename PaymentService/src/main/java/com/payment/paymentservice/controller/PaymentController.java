@@ -1,7 +1,6 @@
 package com.payment.paymentservice.controller;
 
-import com.payment.paymentservice.dto.BookingPaymentDTO;
-import com.payment.paymentservice.mock.BookingMock;
+import avro.BookingPayment;
 import com.payment.paymentservice.model.CompletedOrder;
 import com.payment.paymentservice.model.GetOrder;
 import com.payment.paymentservice.model.PaymentOrder;
@@ -23,7 +22,7 @@ public class PaymentController {
     }
 
     @PostMapping("/init")
-    public Mono<PaymentOrder> createPayment(@RequestBody BookingPaymentDTO mock) {
+    public Mono<PaymentOrder> createPayment(@RequestBody BookingPayment mock) {
         return payPalService.createPayment(mock);
     }
 

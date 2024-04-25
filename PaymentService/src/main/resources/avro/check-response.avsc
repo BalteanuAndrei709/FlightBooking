@@ -1,0 +1,16 @@
+{
+  "namespace": "avro",
+  "type": "record",
+  "name": "CheckResponse",
+  "fields": [
+    {
+      "name": "bookingId",
+      "type": "string",
+      "avro.java.string": "String"
+    },
+    {
+      "name": "status",
+      "type": "boolean"
+    }
+  ]
+}

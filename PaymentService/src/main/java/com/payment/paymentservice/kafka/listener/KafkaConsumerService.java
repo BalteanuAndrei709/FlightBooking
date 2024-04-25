@@ -1,10 +1,8 @@
 package com.payment.paymentservice.kafka.listener;
 
 
+import avro.BookingPayment;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.payment.paymentservice.dto.BookingPaymentDTO;
-import com.payment.paymentservice.kafka.producer.KafkaProducerService;
-import com.payment.paymentservice.service.OrderService;
 import com.payment.paymentservice.service.PayPalService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -23,12 +21,12 @@ public class KafkaConsumerService {
     private PayPalService payPalService;
 
     @KafkaListener(topics = "payment-check", groupId = "admin-group-payments")
-    public void listen(ConsumerRecord<String, String> record) {
+    public void listen(ConsumerRecord<String, BookingPayment> record) {
 
         try {
-            BookingPaymentDTO bookingPaymentDTO = objectMapper.readValue(record.value(), BookingPaymentDTO.class);
-            logger.info("Received booking: {}", bookingPaymentDTO);
-            payPalService.createPayment(bookingPaymentDTO).subscribe();
+            BookingPayment bookingPayment = record.value();
+            logger.info("Received booking: {}", bookingPayment);
+            payPalService.createPayment(bookingPayment).subscribe();
 
         } catch(Exception e) {
             logger.error("Received booking: {}", e.getMessage());

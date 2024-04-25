@@ -1,10 +1,10 @@
 package com.payment.paymentservice.service;
 
-import com.payment.paymentservice.dto.BookingPaymentDTO;
+import avro.BookingPayment;
+import avro.CheckResponse;
 import com.payment.paymentservice.dto.CheckStatusDTO;
 import com.payment.paymentservice.exception.OrderNotPayedException;
 import com.payment.paymentservice.kafka.producer.KafkaProducerService;
-import com.payment.paymentservice.mock.BookingMock;
 import com.payment.paymentservice.model.*;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
@@ -18,7 +18,6 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 @Service
 public class PayPalService {
@@ -43,7 +42,7 @@ public class PayPalService {
         this.kafkaProducerService = kafkaProducerService;
     }
 
-    public Mono<PaymentOrder> createPayment(BookingPaymentDTO mock) {
+    public Mono<PaymentOrder> createPayment(BookingPayment mock) {
 
         OrderRequest orderRequest = createOrder(mock);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
@@ -130,12 +129,12 @@ public class PayPalService {
         long callTime = System.currentTimeMillis();
 
         Mono<CompletedOrder> resultMono = orderStatusMono.flatMap(orderStatus -> {
-            CheckStatusDTO checkStatusDTO = new CheckStatusDTO();
+            CheckResponse checkResponse = new CheckResponse();
             if (callTime > orderStatus.getExpirationTime() && !orderStatus.getStatus().equals("SUCCESS")) {
                 orderStatus.setStatus("CANCELED");
-                checkStatusDTO.setBookingId(orderStatus.getBookingId());
-                checkStatusDTO.setStatus(false);
-                kafkaProducerService.sendMessage(checkStatusDTO);
+                checkResponse.setBookingId(orderStatus.getBookingId());
+                checkResponse.setStatus(false);
+                kafkaProducerService.sendMessage(checkResponse);
                 orderService.updateOrder(orderStatus, token).subscribe();
                 return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getId()));
             } else {
@@ -148,9 +147,9 @@ public class PayPalService {
                         Order order = httpResponse.result();
                         orderStatus.setStatus("SUCCESS");
                         orderService.updateOrder(orderStatus, order.id()).subscribe();
-                        checkStatusDTO.setBookingId(orderStatus.getBookingId());
-                        checkStatusDTO.setStatus(true);
-                        kafkaProducerService.sendMessage(checkStatusDTO);
+                        checkResponse.setBookingId(orderStatus.getBookingId());
+                        checkResponse.setStatus(true);
+                        kafkaProducerService.sendMessage(checkResponse);
                     } catch (IOException e) {
                         throw new OrderNotPayedException("Payment with id " + token + " was not paid by following the given link");
                     }
@@ -163,7 +162,7 @@ public class PayPalService {
         return resultMono;
     }
 
-    private OrderRequest createOrder(BookingPaymentDTO mock) {
+    private OrderRequest createOrder(BookingPayment mock) {
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
 
@@ -172,7 +171,7 @@ public class PayPalService {
          */
         AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown();
         amountWithBreakdown.currencyCode("EUR");
-        amountWithBreakdown.value(mock.getPrice().toString());
+        amountWithBreakdown.value(String.valueOf(mock.getPrice()));
 
         /**
          * PurchaseUnitRequest = The most important attributes are amount (required) and array of items.

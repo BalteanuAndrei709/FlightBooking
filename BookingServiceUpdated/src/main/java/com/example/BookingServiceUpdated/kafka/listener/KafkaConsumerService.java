@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 public class KafkaConsumerService {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final BookingService bookingService;
 
     public KafkaConsumerService(BookingService bookingService) {
@@ -37,16 +36,16 @@ public class KafkaConsumerService {
     }
 
     @KafkaListener(topics = "payment-check-status", groupId = "admin-group-payments")
-    public void listenPayments(ConsumerRecord<String, String> record) {
+    public void listenPayments(ConsumerRecord<String, CheckResponse> record) {
         logger.info("Received Kafka message for payments: Key - {}, Value - {}", record.key(), record.value());
         try {
-            CheckStatusDTO adminStatusDTO = objectMapper.readValue(record.value(), CheckStatusDTO.class);
-            if (!adminStatusDTO.getStatus()) {
-                bookingService.sendNotification(adminStatusDTO.getBookingId(), "Error at payment.", true);
+            CheckResponse checkResponse = record.value();
+            if (!checkResponse.getStatus()) {
+                bookingService.sendNotification(checkResponse.getBookingId(), "Error at payment.", true);
                 // to send to Admin Service to cancel the booking
                 return;
             }
-            bookingService.sendNotification(adminStatusDTO.getBookingId(), "All good.", false);
+            bookingService.sendNotification(checkResponse.getBookingId(), "All good.", false);
         } catch (Exception e) {
             logger.error("Error processing Kafka message: {}", e.getMessage(), e);
         }
