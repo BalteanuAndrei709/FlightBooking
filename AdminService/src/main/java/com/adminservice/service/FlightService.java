@@ -1,14 +1,13 @@
 package com.adminservice.service;
 
+import avro.BookingAdmin;
 import com.adminservice.dto.CompressedFlightDTO;
-import com.adminservice.dto.ReserveSeatsDTO;
 import com.adminservice.exception.InvalidParameterException;
 import com.adminservice.model.Flight;
 import com.adminservice.model.Operator;
 import com.adminservice.repository.FlightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,9 +123,9 @@ public class FlightService {
         return !flightRepository.existsById(id);
     }
 
-    public void decrementSeatsAvailable(ReserveSeatsDTO reserveSeatsDTO) {
-        var flightId = reserveSeatsDTO.getFlightId();
-        var seatsToDecrement = reserveSeatsDTO.getNumberOfSeats();
+    public void decrementSeatsAvailable(BookingAdmin bookingAdmin) {
+        var flightId = bookingAdmin.getFlightId();
+        var seatsToDecrement = bookingAdmin.getNumberOfSeats();
         Flight flight = flightRepository.findById(flightId)
                 .orElseThrow(() -> new InvalidParameterException("Flight not found with id: " + flightId));
         if (flight.getNumberSeatsAvailable() < seatsToDecrement) {

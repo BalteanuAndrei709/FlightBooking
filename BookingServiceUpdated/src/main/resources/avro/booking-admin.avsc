@@ -1,0 +1,20 @@
+{
+  "namespace": "avro",
+  "type": "record",
+  "name": "BookingAdmin",
+  "fields": [
+    {
+      "name": "bookingId",
+      "type": "string",
+      "avro.java.string": "String"
+    },
+    {
+      "name": "flightId",
+      "type": "int"
+    },
+    {
+      "name": "numberOfSeats",
+      "type": "int"
+    }
+  ]
+}

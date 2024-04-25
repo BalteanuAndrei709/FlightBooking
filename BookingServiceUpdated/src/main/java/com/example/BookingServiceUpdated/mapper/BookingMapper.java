@@ -1,9 +1,8 @@
 package com.example.BookingServiceUpdated.mapper;
 
-
+import avro.BookingAdmin;
 import com.example.BookingServiceUpdated.dto.BookingDTO;
 import com.example.BookingServiceUpdated.dto.CompressedBookingDTO;
-import com.example.BookingServiceUpdated.dto.BookingAdminDTO;
 import com.example.BookingServiceUpdated.model.Booking;
 import com.example.BookingServiceUpdated.model.BookingStatus;
 import com.example.BookingServiceUpdated.model.Flight;
@@ -43,21 +42,21 @@ public class BookingMapper {
     }
 
     /**
-     * Maps an entity of Booking to an BookingAdminDTO.
+     * Maps an entity of Booking to an BookingAdmin.
      * @param booking
      * The entity object of type Booking.
      * @return
-     * An BookingAdminDTO
+     * An BookingAdmin
      */
-    public BookingAdminDTO entityToBookingAdminDTO(Booking booking) {
+    public BookingAdmin entityToBookingAdmin(Booking booking) {
         if (booking == null) {
             return null;
         }
-        BookingAdminDTO seatsDTO = new BookingAdminDTO();
-        seatsDTO.setBookingId(booking.getId());
-        seatsDTO.setNumberOfSeats(booking.getNumberOfSeats());
-        seatsDTO.setFlightId(booking.getFlightId());
-        return seatsDTO;
+        BookingAdmin bookingAdmin = new BookingAdmin();
+        bookingAdmin.setBookingId(booking.getId());
+        bookingAdmin.setNumberOfSeats(booking.getNumberOfSeats());
+        bookingAdmin.setFlightId(booking.getFlightId());
+        return bookingAdmin;
     }
 }
 

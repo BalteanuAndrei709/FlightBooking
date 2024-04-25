@@ -1,0 +1,21 @@
+{
+  "namespace": "avro",
+  "type": "record",
+  "name": "BookingPayment",
+  "fields": [
+    {
+      "name": "bookingId",
+      "type": "string",
+      "avro.java.string": "String"
+    },
+    {
+      "name": "price",
+      "type": "double"
+    },
+    {
+      "name": "iban",
+      "type": "string",
+      "avro.java.string": "String"
+    }
+  ]
+}

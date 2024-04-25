@@ -1,6 +1,7 @@
 package com.adminservice.kafka.listener;
-import com.adminservice.dto.BookingAdminStatusDTO;
-import com.adminservice.dto.ReserveSeatsDTO;
+
+import avro.BookingAdmin;
+import avro.CheckResponse;
 import com.adminservice.kafka.producer.KafkaProducerService;
 import com.adminservice.service.FlightService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -24,22 +25,22 @@ public class KafkaConsumerService {
     }
 
     @KafkaListener(topics = "admin-check", groupId = "admin-group")
-    public void listen(ConsumerRecord<String, String> record) {
+    public void listen(ConsumerRecord<String, BookingAdmin> record) {
 
         try {
-            ReserveSeatsDTO reserveSeatsDTO = objectMapper.readValue(record.value(), ReserveSeatsDTO.class);
-            logger.info("Received booking: {}", reserveSeatsDTO);
-            BookingAdminStatusDTO bookingAdminStatusDTO = new BookingAdminStatusDTO();
-            bookingAdminStatusDTO.setBookingId(reserveSeatsDTO.getBookingId());
+            BookingAdmin bookingAdmin = record.value();
+            logger.info("Received booking: {}", bookingAdmin);
+            CheckResponse checkResponse = new CheckResponse();
+            checkResponse.setBookingId(bookingAdmin.getBookingId());
             try {
-                flightService.decrementSeatsAvailable(reserveSeatsDTO);
-                bookingAdminStatusDTO.setStatus(true);
+                flightService.decrementSeatsAvailable(bookingAdmin);
+                checkResponse.setStatus(true);
             }
             catch (Exception e){
-                bookingAdminStatusDTO.setStatus(false);
+                checkResponse.setStatus(false);
             }
             finally {
-                kafkaProducerService.sendMessage("admin-check-status", bookingAdminStatusDTO);
+                kafkaProducerService.sendMessage("admin-check-status", checkResponse);
             }
         } catch(Exception e) {
             logger.error("Received booking: {}", e.getMessage());

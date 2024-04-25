@@ -1,5 +1,6 @@
 package com.example.BookingServiceUpdated.kafka.listener;
 
+import avro.CheckResponse;
 import com.example.BookingServiceUpdated.dto.CheckStatusDTO;
 import com.example.BookingServiceUpdated.service.BookingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,16 +21,15 @@ public class KafkaConsumerService {
         this.bookingService = bookingService;
     }
 
-    @KafkaListener(topics = "admin-check-status", groupId = "admin-bookings-group")
-    public void listen(ConsumerRecord<String, String> record) {
+    @KafkaListener(topics = "admin-check-status", groupId = "admin-group")
+    public void listen(ConsumerRecord<String, CheckResponse> record) {
         try {
-            logger.info("Received Kafka message: Key - {}, Value - {}", record.key(), record.value());
-            CheckStatusDTO adminStatusDTO = objectMapper.readValue(record.value(), CheckStatusDTO.class);
-            if(!adminStatusDTO.getStatus()){
-                bookingService.sendNotification(adminStatusDTO.getBookingId(), "Error at reserving seats.", true);
+            CheckResponse checkResponse = record.value();
+            if(!checkResponse.getStatus()){
+                bookingService.sendNotification(checkResponse.getBookingId(), "Error at reserving seats.", true);
                 return;
             }
-            bookingService.sendForPaymentCheck(adminStatusDTO.getBookingId());
+            bookingService.sendForPaymentCheck(checkResponse.getBookingId());
 
         } catch (Exception e) {
             logger.error("Error processing Kafka message: {}", e.getMessage(), e);
