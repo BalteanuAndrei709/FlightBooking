@@ -78,6 +78,27 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_DB=admin_service
 
+  payment-service:
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - mongodb
+
+    build:
+      context: ./PaymentService
+    container_name: payment-service
+    ports:
+      - "8887:8887"
+    environment:
+      SERVER_PORT: 8887
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/payments?authSource=admin
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:9092,kafka3:9092
+      PAYPAL_MODE: sandbox
+      RETURN_URL: http://localhost:8887/payment/success
+      CANCEL_URL: http://localhost:8887/payment/cancel
+
+
   notification-service:
     depends_on:
       - mongodb
