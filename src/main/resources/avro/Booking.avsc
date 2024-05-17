@@ -1,0 +1,19 @@
+{
+  "type": "record",
+  "name": "BookingMock",
+  "namespace": "com.payment.paymentservice.mock",
+  "fields": [
+    {
+      "name": "amount",
+      "type": "double"
+    },
+    {
+      "name": "iban",
+      "type": "string"
+    },
+    {
+      "name": "bookingId",
+      "type": "string"
+    }
+  ]
+}

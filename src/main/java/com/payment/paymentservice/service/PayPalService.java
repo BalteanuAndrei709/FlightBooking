@@ -1,22 +1,20 @@
 package com.payment.paymentservice.service;
 
-import com.payment.paymentservice.controller.ViewController;
+import com.payment.paymentservice.dto.PaymentStatusDto;
 import com.payment.paymentservice.exception.OrderNotPayedException;
+import com.payment.paymentservice.kafka.producer.KafkaProducerService;
 import com.payment.paymentservice.mock.BookingMock;
 import com.payment.paymentservice.model.*;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -28,21 +26,20 @@ public class PayPalService {
     private final String cancelUrl;
     private final OrderService orderService;
     private final BusinessPlatformService businessService;
+    private final KafkaProducerService producerService;
     private final long AVAILABLE_TIME = 10000 * 6; // 1 minutes (10 seconds = 10000)
-    private final Properties properties;
-    private final String TOPIC = "flight-payment";
 
     @Autowired
     public PayPalService(@Value("${return.url}") String returnUrl,
                          @Value("${cancel.url}") String cancelUrl,
                          OrderService orderService,
                          BusinessPlatformService businessService,
-                         Properties properties) {
+                         KafkaProducerService producerService) {
         this.returnUrl = returnUrl;
         this.cancelUrl = cancelUrl;
         this.orderService = orderService;
         this.businessService = businessService;
-        this.properties = properties;
+        this.producerService = producerService;
 
     }
 
@@ -119,9 +116,6 @@ public class PayPalService {
                         orderStatus.setBookingId(mock.getBookingId());
                         orderStatus.setBusinessIban(mock.getIban());
                         orderStatus.setExpirationTime(orderStatus.getCreationTime() + AVAILABLE_TIME);
-
-                        sendKafkaMessage(orderStatus);
-
                         orderService.addOrder(orderStatus).subscribe();
 
                         PaymentOrder paymentOrder = new PaymentOrder("created", order.id(), redirectUrl);
@@ -226,7 +220,7 @@ public class PayPalService {
             if (callTime > orderStatus.getExpirationTime() && !orderStatus.getStatus().equals("SUCCESS")) {
                 orderStatus.setStatus("CANCELED");
                 orderService.updateOrder(orderStatus, token).subscribe();
-                sendKafkaMessage(orderStatus);
+                sendKafkaMessage(orderStatus, orderStatus.getOrderId());
                 return Mono.just(new CompletedOrder(orderStatus.getStatus(), orderStatus.getOrderId()));
             } else {
                 monoBusiness.subscribe(event -> {
@@ -238,7 +232,7 @@ public class PayPalService {
                         Order order = httpResponse.result();
                         orderStatus.setStatus("SUCCESS");
                         orderService.updateOrder(orderStatus, order.id()).subscribe();
-                        sendKafkaMessage(orderStatus);
+                        sendKafkaMessage(orderStatus, orderStatus.getOrderId());
                     } catch (IOException e) {
                         throw new OrderNotPayedException("Payment with id " + token + " was not paid by following the given link");
                     }
@@ -250,28 +244,20 @@ public class PayPalService {
         return resultMono;
     }
 
-    private void sendKafkaMessage(OrderStatus orderStatus) {
-        KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
-        String key = orderStatus.getOrderId();
-        String value = orderStatus.getStatus();
-        ProducerRecord<String, String> producerRecord =
-                new ProducerRecord<>(TOPIC, key, value);
-        producer.send(producerRecord);
-        producer.close();
-    }
-
     public void test(BookingMock mock) {
 
         createPayment(mock).subscribe();
+    }
 
+    public void sendKafkaMessage(OrderStatus orderStatus) {
 
-      /*  Mono<OrderStatus> orderStatusMono = orderService.
-        getOrder(e.getOrderId(), mock.getIban()).doOnNext(event -> {
-            if (event.getOrderStatus().equals("APPROVED")) {
-                captureOrder(e.getOrderId(), mock.getIban()).subscribe();
-            }
-        }).subscribe();*/
+        PaymentStatusDto paymentStatus = new PaymentStatusDto(orderStatus.getOrderId(), orderStatus.getStatus());
+        producerService.sendMessage(paymentStatus);
+    }
 
+    public void sendKafkaMessage(OrderStatus orderStatus, String orderId) {
+        PaymentStatusDto paymentStatus = new PaymentStatusDto(orderStatus.getOrderId(), orderStatus.getStatus());
+        producerService.sendMessage(paymentStatus, orderId);
     }
 
 }

@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "PaymentStatusDto",
+  "namespace": "com.payment.paymentservice.dto",
+  "fields": [
+    {
+      "name": "orderId",
+      "type": "string"
+    },
+    {
+      "name": "orderStatus",
+      "type": "string"
+    }
+  ]
+}
